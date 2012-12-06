@@ -27,7 +27,11 @@ import org.slf4j.Logger;
 
 public class LvdmGamemode extends Gamemode
 {
-	public static Logger LOGGER;
+	private static Logger logger;
+	public static Logger logger()
+	{
+		return logger;
+	}
 	
 	
 	private PlayerManager playerManager;
@@ -44,7 +48,7 @@ public class LvdmGamemode extends Gamemode
 	@Override
 	protected void onEnable() throws Throwable
 	{
-		LOGGER = getLogger();
+		logger = getLogger();
 		
 		final SampObjectStore store = getShoebill().getSampObjectStore();
 		final SampObjectFactory factory = getShoebill().getSampObjectFactory();
@@ -73,6 +77,7 @@ public class LvdmGamemode extends Gamemode
 		
 		timer = factory.createTimer(5000);
 		timer.start();
+		
 		timerEventHandlerEntry = eventManager.addHandler(TimerTickEvent.class, timer, timerEventHandler, HandlerPriority.NORMAL);	//Bind timer object for this EventHandler
 		
 		factory.createPickup(371, 15, 1710.3359f, 1614.3585f, 10.1191f, 0);
@@ -102,16 +107,16 @@ public class LvdmGamemode extends Gamemode
 		BufferedReader reader;
 		try
 		{
-			LOGGER.info("loading " + file);
+			logger.info("loading " + file);
 			reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")));
 			
 			int count = 0;
 			while (reader.ready())
 			{
 				String data = reader.readLine().trim();
-				String[] datas = data.split( "," );
+				String[] datas = data.split(",");
 
-				if (data.length() == 0 || data.charAt( 0 ) == '/' || datas.length < 11) continue;
+				if (data.length() == 0 || data.charAt(0) == '/' || datas.length < 11) continue;
 				
 				int i = 0;
 				int modelId = Integer.parseInt(datas[i++].trim());
@@ -130,35 +135,36 @@ public class LvdmGamemode extends Gamemode
 				count++;
 			}
 			
-			LOGGER.info("Created " + count + " classes.");
+			logger.info("Created " + count + " classes.");
 			reader.close();
 		}
 		catch (IOException e)
 		{
-			LOGGER.info("Can't initialize classes, please check your " + file);
+			logger.info("Can't initialize classes, please check your " + file);
 		}
 	}
 
-	void loadVehicle(SampObjectFactory factory, File dir)
+	private void loadVehicle(SampObjectFactory factory, File dir)
 	{
 		BufferedReader reader;
-		try
-		{
-			File files[] = dir.listFiles();
+
+		File files[] = dir.listFiles();
 			
-			int count = 0;
-			for (File file : files)
+		int count = 0;
+		for (File file : files)
+		{
+			try
 			{
 				reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")));
-				LOGGER.info("loading " + file);
-				
+				logger.info("loading " + file);
+					
 				while (reader.ready())
 				{
 					String data = reader.readLine().trim();
 					String[] datas = data.split("[, ]");
 					
-					if (data.length() == 0 || data.charAt( 0 ) == '/' || datas.length < 7) continue;
-
+					if (data.length() == 0 || data.charAt(0) == '/' || datas.length < 7) continue;
+	
 					int i = 0;
 					int modelId = Integer.parseInt(datas[i++].trim());
 					float x = Float.parseFloat(datas[i++].trim());
@@ -172,12 +178,12 @@ public class LvdmGamemode extends Gamemode
 					count++;
 				}
 			}
+			catch (IOException e)
+			{
+				System.out.println("Can't initialize vehicles, please check your " + file + " file.");
+			}
+		}
 
-			System.out.println( "Created " + count + " vehicles." );
-		}
-		catch (IOException e)
-		{
-			System.out.println( "Can't initialize vehicles, please check your \"vehicles\" file." );
-		}
+		System.out.println("Created " + count + " vehicles.");
 	}
 }

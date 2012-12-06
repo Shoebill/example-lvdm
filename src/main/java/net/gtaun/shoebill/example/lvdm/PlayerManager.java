@@ -51,7 +51,7 @@ public class PlayerManager
 		new Vector3D(1564.0052f, 2756.9463f, 10.8203f).immutable(),
 		new Vector3D(1271.5452f, 2554.0227f, 10.8203f).immutable(),
 		new Vector3D(1441.5894f, 2567.9099f, 10.8203f).immutable(),
-		new Vector3D(1480.6473f, 2213.5718f, 11.0234f),
+		new Vector3D(1480.6473f, 2213.5718f, 11.0234f).immutable(),
 		new Vector3D(1400.5906f, 2225.6960f, 11.0234f).immutable(),
 		new Vector3D(1598.8419f, 2221.5676f, 11.0625f).immutable(),
 		new Vector3D(1318.7759f, 1251.3580f, 10.8203f).immutable(),
@@ -302,7 +302,7 @@ public class PlayerManager
 				player.sendMessage(Color.YELLOW, "You have sent " + givePlayer.getName() + "(" + givePlayer.getId() + "), $" + money);
 				givePlayer.sendMessage(Color.YELLOW, "You have recieved $" + money + " from " + player.getName() + "(" + player.getId() + ").");
 				
-				LvdmGamemode.LOGGER.info("%s(%d) has transfered %d to %s(%d)\n", player.getName(), player.getId(), money, givePlayer.getName(), givePlayer.getId());
+				LvdmGamemode.logger().info("%s(%d) has transfered %d to %s(%d)\n", player.getName(), player.getId(), money, givePlayer.getName(), givePlayer.getId());
 				event.setResponse(1);
 				return;
 				
@@ -335,7 +335,7 @@ public class PlayerManager
 		}
 	};
 	
-	CheckpointEventHandler checkpointEventHandler = new CheckpointEventHandler()
+	private CheckpointEventHandler checkpointEventHandler = new CheckpointEventHandler()
 	{
 		public void onCheckpointEnter(CheckpointEnterEvent event)
 		{
@@ -354,7 +354,7 @@ public class PlayerManager
 	private void setRandomSpawn(Player player)
 	{
 		int rand = random.nextInt(RANDOM_SPAWNS.length);
-		player.setLocation(RANDOM_SPAWNS[rand].getX(), RANDOM_SPAWNS[rand].getY(), RANDOM_SPAWNS[rand].getZ());
+		player.setLocation(RANDOM_SPAWNS[rand]);
 		player.setInterior(0);
 	}
 
