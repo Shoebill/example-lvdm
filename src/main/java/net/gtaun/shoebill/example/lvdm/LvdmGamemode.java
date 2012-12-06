@@ -70,10 +70,10 @@ public class LvdmGamemode extends Gamemode
 				}
 			}
 		};
-		timerEventHandlerEntry = eventManager.addHandler(TimerTickEvent.class, timerEventHandler, HandlerPriority.NORMAL);
 		
 		timer = factory.createTimer(5000);
 		timer.start();
+		timerEventHandlerEntry = eventManager.addHandler(TimerTickEvent.class, timer, timerEventHandler, HandlerPriority.NORMAL);	//Bind timer object for this EventHandler
 		
 		factory.createPickup(371, 15, 1710.3359f, 1614.3585f, 10.1191f, 0);
 		factory.createPickup(371, 15, 1964.4523f, 1917.0341f, 130.9375f, 0);
