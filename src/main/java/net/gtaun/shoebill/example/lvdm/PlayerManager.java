@@ -284,7 +284,7 @@ public class PlayerManager
 				int money = Integer.parseInt(args.poll());
 				
 				Player givePlayer = sampObjectStore.getPlayer(playerId);
-				if (givePlayer == null)
+				if (givePlayer == null || givePlayer == player)
 				{
 					player.sendMessage(Color.RED, "Invalid player id.");
 					event.setResponse(1);
@@ -294,6 +294,8 @@ public class PlayerManager
 				if (money <= 0 || money > player.getMoney())
 				{
 					player.sendMessage(Color.WHITE, "Invalid transaction amount.");
+					event.setResponse(1);
+					return;
 				}
 				
 				player.giveMoney(-money);
@@ -302,7 +304,7 @@ public class PlayerManager
 				player.sendMessage(Color.YELLOW, "You have sent " + givePlayer.getName() + "(" + givePlayer.getId() + "), $" + money);
 				givePlayer.sendMessage(Color.YELLOW, "You have recieved $" + money + " from " + player.getName() + "(" + player.getId() + ").");
 				
-				LvdmGamemode.logger().info("%s(%d) has transfered %d to %s(%d)\n", player.getName(), player.getId(), money, givePlayer.getName(), givePlayer.getId());
+				LvdmGamemode.logger().info("{}({}) has transfered {} to {}({})\n", player.getName(), player.getId(), money, givePlayer.getName(), givePlayer.getId());
 				event.setResponse(1);
 				return;
 				
