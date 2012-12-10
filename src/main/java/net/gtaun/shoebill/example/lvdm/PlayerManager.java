@@ -1,6 +1,5 @@
 package net.gtaun.shoebill.example.lvdm;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -26,8 +25,8 @@ import net.gtaun.shoebill.object.Checkpoint;
 import net.gtaun.shoebill.object.Menu;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.util.event.EventManager.HandlerEntry;
 import net.gtaun.util.event.EventManager.HandlerPriority;
+import net.gtaun.util.event.ManagedEventManager;
 
 public class PlayerManager
 {
@@ -56,11 +55,11 @@ public class PlayerManager
 		new Vector3D(1598.8419f, 2221.5676f, 11.0625f).immutable(),
 		new Vector3D(1318.7759f, 1251.3580f, 10.8203f).immutable(),
 		new Vector3D(1558.0731f, 1007.8292f, 10.8125f).immutable(),
-		new Vector3D(-857.0551f,1536.6832f,22.5870f).immutable(),		// Out of Town Spawns
-		new Vector3D(817.3494f,856.5039f,12.7891f).immutable(),
-		new Vector3D(116.9315f,1110.1823f,13.6094f).immutable(),
-		new Vector3D(-18.8529f,1176.0159f,19.5634f).immutable(),
-		new Vector3D(-315.0575f,1774.0636f,43.6406f).immutable(),
+		new Vector3D(-857.0551f, 1536.6832f, 22.5870f).immutable(),		// Out of Town Spawns
+		new Vector3D(817.3494f, 856.5039f, 12.7891f).immutable(),
+		new Vector3D(116.9315f, 1110.1823f, 13.6094f).immutable(),
+		new Vector3D(-18.8529f, 1176.0159f, 19.5634f).immutable(),
+		new Vector3D(-315.0575f, 1774.0636f, 43.6406f).immutable(),
 		new Vector3D(1705.2347f, 1025.6808f, 10.8203f).immutable()
 	};
 
@@ -71,38 +70,38 @@ public class PlayerManager
 //	};
 	
 	
-	private EventManager eventManager;
+	private ManagedEventManager eventManager;
 	private SampObjectFactory sampObjectFactory;
 	private SampObjectStore sampObjectStore;
-	private Collection<HandlerEntry> entries;
 	private Collection<Checkpoint> checkpoints;
 	private Random random;
 	
 	
-	public PlayerManager(EventManager eventManager, SampObjectFactory factory, SampObjectStore store)
+	public PlayerManager(EventManager rootEventManager, SampObjectFactory factory, SampObjectStore store)
 	{
-		this.eventManager = eventManager;
 		this.sampObjectFactory = factory;
 		this.sampObjectStore = store;
 		
-		entries = new ArrayList<>();
 		checkpoints = new LinkedList<>();
 		random = new Random();
+		
+		this.eventManager = new ManagedEventManager(rootEventManager);
+		eventManager.registerHandler(PlayerUpdateEvent.class, playerEventHandler, HandlerPriority.NORMAL);
+		eventManager.registerHandler(PlayerConnectEvent.class, playerEventHandler, HandlerPriority.NORMAL);
+		eventManager.registerHandler(PlayerSpawnEvent.class, playerEventHandler, HandlerPriority.NORMAL);
+		eventManager.registerHandler(PlayerDeathEvent.class, playerEventHandler, HandlerPriority.NORMAL);
+		eventManager.registerHandler(PlayerRequestClassEvent.class, playerEventHandler, HandlerPriority.NORMAL);
+		eventManager.registerHandler(PlayerRequestSpawnEvent.class, playerEventHandler, HandlerPriority.NORMAL);
+		eventManager.registerHandler(PlayerCommandEvent.class, playerEventHandler, HandlerPriority.NORMAL);
+		eventManager.registerHandler(CheckpointEnterEvent.class, checkpointEventHandler, HandlerPriority.NORMAL);
 	}
 	
-	public void initialize()
+	public void uninitialize()
 	{
-		entries.add(eventManager.addHandler(PlayerUpdateEvent.class, playerEventHandler, HandlerPriority.NORMAL));
-		entries.add(eventManager.addHandler(PlayerConnectEvent.class, playerEventHandler, HandlerPriority.NORMAL));
-		entries.add(eventManager.addHandler(PlayerSpawnEvent.class, playerEventHandler, HandlerPriority.NORMAL));
-		entries.add(eventManager.addHandler(PlayerDeathEvent.class, playerEventHandler, HandlerPriority.NORMAL));
-		entries.add(eventManager.addHandler(PlayerRequestClassEvent.class, playerEventHandler, HandlerPriority.NORMAL));
-		entries.add(eventManager.addHandler(PlayerRequestSpawnEvent.class, playerEventHandler, HandlerPriority.NORMAL));
-		entries.add(eventManager.addHandler(PlayerCommandEvent.class, playerEventHandler, HandlerPriority.NORMAL));
-		entries.add(eventManager.addHandler(CheckpointEnterEvent.class, checkpointEventHandler, HandlerPriority.NORMAL));
+		eventManager.cancelAll();
 	}
 	
-	PlayerEventHandler playerEventHandler = new PlayerEventHandler()
+	private PlayerEventHandler playerEventHandler = new PlayerEventHandler()
 	{
 		public void onPlayerUpdate(PlayerUpdateEvent event)
 		{

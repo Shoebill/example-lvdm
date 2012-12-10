@@ -19,11 +19,9 @@ import net.gtaun.shoebill.object.Timer;
 import net.gtaun.shoebill.object.World;
 import net.gtaun.shoebill.resource.Gamemode;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.util.event.EventManager.HandlerEntry;
 import net.gtaun.util.event.EventManager.HandlerPriority;
 
 import org.slf4j.Logger;
-
 
 public class LvdmGamemode extends Gamemode
 {
@@ -37,9 +35,7 @@ public class LvdmGamemode extends Gamemode
 	private PlayerManager playerManager;
 	private Timer timer;
 	
-	private HandlerEntry timerEventHandlerEntry;
-
-
+	
 	public LvdmGamemode()
 	{
 		
@@ -78,7 +74,7 @@ public class LvdmGamemode extends Gamemode
 		timer = factory.createTimer(5000);
 		timer.start();
 		
-		timerEventHandlerEntry = eventManager.addHandler(TimerTickEvent.class, timer, timerEventHandler, HandlerPriority.NORMAL);	//Bind timer object for this EventHandler
+		eventManager.registerHandler(TimerTickEvent.class, timer, timerEventHandler, HandlerPriority.NORMAL);	//Bind timer object for this EventHandler
 		
 		factory.createPickup(371, 15, 1710.3359f, 1614.3585f, 10.1191f, 0);
 		factory.createPickup(371, 15, 1964.4523f, 1917.0341f, 130.9375f, 0);
@@ -87,7 +83,6 @@ public class LvdmGamemode extends Gamemode
 		factory.createPickup(371, 15, 2265.9739f, 1623.4060f, 94.9219f, 0);
 		
 		playerManager = new PlayerManager(eventManager, factory, store);
-		playerManager.initialize();
 		
 		File playerClassFile = new File(getDataDir(), "class.txt");
 		loadClass(world, playerClassFile);
@@ -99,7 +94,8 @@ public class LvdmGamemode extends Gamemode
 	@Override
 	protected void onDisable() throws Throwable
 	{
-		timerEventHandlerEntry.cancel();
+		playerManager.uninitialize();
+		playerManager = null;
 	}
 
 	private void loadClass(World world, File file)
