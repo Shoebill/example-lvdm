@@ -94,6 +94,8 @@ public class PlayerManager
 		eventManager.registerHandler(PlayerRequestSpawnEvent.class, playerEventHandler, HandlerPriority.NORMAL);
 		eventManager.registerHandler(PlayerCommandEvent.class, playerEventHandler, HandlerPriority.NORMAL);
 		eventManager.registerHandler(CheckpointEnterEvent.class, checkpointEventHandler, HandlerPriority.NORMAL);
+		
+		eventManager.registerHandler(PlayerCommandEvent.class, playerEventHandlerBottom, HandlerPriority.BOTTOM);
 	}
 	
 	public void uninitialize()
@@ -146,12 +148,11 @@ public class PlayerManager
 		{
 			Player player = event.getPlayer();
 			setupForClassSelection(player);
-			event.setResponse(1);
 		}
 		
 		public void onPlayerRequestSpawn(PlayerRequestSpawnEvent event)
 		{
-			event.setResponse(1);
+			
 		}
 		
 		public void onPlayerCommand(PlayerCommandEvent event)
@@ -176,7 +177,7 @@ public class PlayerManager
 				Location location = player.getLocation();
 				location.setY(location.getY()+10);
 				sampObjectFactory.createPickup(351, 15, location);
-				event.setResponse(1);
+				event.setProcessed();
 				return;
 				
 			case "/menu":
@@ -185,7 +186,7 @@ public class PlayerManager
 				menu.addItem(0, "hi");
 				menu.addItem(0, "hey");
 				menu.show(player);
-				event.setResponse(1);
+				event.setProcessed();
 				return;
 				
 			case "/cp":
@@ -196,14 +197,14 @@ public class PlayerManager
 				if (usingCheckpoint != null) checkpoints.remove(usingCheckpoint);
 				checkpoints.add(checkpoint);
 				player.setCheckpoint(checkpoint);
-				event.setResponse(1);
+				event.setProcessed();
 				return;
 				
 			case "/tp":
 				if (args.size() < 3)
 				{
 					player.sendMessage(Color.WHITE, "Usage: /tp [x] [y] [z]");
-					event.setResponse(1);
+					event.setProcessed();
 					return;
 				}
 				
@@ -211,71 +212,71 @@ public class PlayerManager
 				float y = Float.parseFloat(args.poll());
 				float z = Float.parseFloat(args.poll());
 				player.setLocation(x, y, z);
-				event.setResponse(1);
+				event.setProcessed();
 				return;
 				
 			case "/world":
 				if (args.size() < 1)
 				{
 					player.sendMessage(Color.WHITE, "Usage: /world [id]");
-					event.setResponse(1);
+					event.setProcessed();
 					return;
 				}
 				
 				int worldId = Integer.parseInt(args.poll());
 				player.setWorld(worldId);
-				event.setResponse(1);
+				event.setProcessed();
 				return;
 				
 			case "/interior":
 				if (args.size() < 1)
 				{
 					player.sendMessage(Color.WHITE, "Usage: /interior [id]");
-					event.setResponse(1);
+					event.setProcessed();
 					return;
 				}
 				
 				int interior = Integer.parseInt(args.poll());
 				player.setInterior(interior);
-				event.setResponse(1);
+				event.setProcessed();
 				return;
 				
 			case "/angle":
 				if (args.size() < 1)
 				{
 					player.sendMessage(Color.WHITE, "Usage: /angle [val]");
-					event.setResponse(1);
+					event.setProcessed();
 					return;
 				}
 
 				float angle = Float.parseFloat(args.poll());
 				player.setAngle(angle);
-				event.setResponse(1);
+				event.setProcessed();
 				return;
 				
 			case "/kill":
 				player.setHealth(0.0f);
-				event.setResponse(1);
+				event.setProcessed();
 				return;
 				
 			case "/codepage":
 				if (args.size() < 1)
 				{
 					player.sendMessage(Color.WHITE, "Usage: /codepage [val]");
-					event.setResponse(1);
+					event.setProcessed();
 					return;
 				}
 				
 				int codepage = Integer.parseInt(args.poll());
 				player.setCodepage(codepage);
-				event.setResponse(1);
+				event.setProcessed();
 				return;
 				
 			case "/givecash":
 				if (args.size() != 2)
 				{
 					player.sendMessage(Color.WHITE, "Usage: /givecash [playerid] [amount]");
-					event.setResponse(1);
+					event.setProcessed();
 					return;
 				}
 				
@@ -286,14 +287,14 @@ public class PlayerManager
 				if (givePlayer == null || givePlayer == player)
 				{
 					player.sendMessage(Color.RED, "Invalid player id.");
-					event.setResponse(1);
+					event.setProcessed();
 					return;
 				}
 				
 				if (money <= 0 || money > player.getMoney())
 				{
 					player.sendMessage(Color.WHITE, "Invalid transaction amount.");
-					event.setResponse(1);
+					event.setProcessed();
 					return;
 				}
 				
@@ -304,7 +305,7 @@ public class PlayerManager
 				givePlayer.sendMessage(Color.YELLOW, "You have recieved $" + money + " from " + player.getName() + "(" + player.getId() + ").");
 				
 				LvdmGamemode.logger().info("{}({}) has transfered {} to {}({})\n", player.getName(), player.getId(), money, givePlayer.getName(), givePlayer.getId());
-				event.setResponse(1);
+				event.setProcessed();
 				return;
 				
 			case "/objective":
@@ -313,7 +314,7 @@ public class PlayerManager
 				player.sendMessage(Color.YELLOW, "Consequently, if you have lots of money, and you die, your killer gets your cash.");
 				player.sendMessage(Color.YELLOW, "However, you're not forced to kill players for money, you can always gamble in the");
 				player.sendMessage(Color.YELLOW, "Casino's.");
-				event.setResponse(1);
+				event.setProcessed();
 				return;
 				
 			case "/tips":
@@ -321,18 +322,27 @@ public class PlayerManager
 				player.sendMessage(Color.YELLOW, "gamemode is to get some cash, get better guns, then go after whoever has the");
 				player.sendMessage(Color.YELLOW, "most cash. Once you've got the most cash, the idea is to stay alive(with the");
 				player.sendMessage(Color.YELLOW, "cash intact)until the game ends, simple right?");
-				event.setResponse(1);
+				event.setProcessed();
 				return;
-			
-			default:
+				
 			case "/help":
 				player.sendMessage(Color.YELLOW, "Las Venturas Deathmatch: Money Grub Coded By Jax and the SA-MP Team.");
 				player.sendMessage(Color.YELLOW, "Type: /objective : to find out what to do in this gamemode.");
 				player.sendMessage(Color.YELLOW, "Type: /givecash [playerid] [money-amount] to send money to other players.");
 				player.sendMessage(Color.YELLOW, "Type: /tips : to see some tips from the creator of the gamemode.");
-				event.setResponse(1);
+				event.setProcessed();
 				return;
 			}
+		}
+	};
+	
+	private PlayerEventHandler playerEventHandlerBottom = new PlayerEventHandler()
+	{
+		public void onPlayerCommand(PlayerCommandEvent event)
+		{
+			Player player = event.getPlayer();
+			player.sendMessage(Color.RED, "Unknown command. Type /help to see help.");
+			event.setProcessed();
 		}
 	};
 	
