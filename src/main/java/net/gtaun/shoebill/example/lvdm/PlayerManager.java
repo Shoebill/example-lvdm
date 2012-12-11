@@ -6,6 +6,8 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
 
+import org.apache.commons.lang3.math.NumberUtils;
+
 import net.gtaun.shoebill.SampObjectFactory;
 import net.gtaun.shoebill.SampObjectStore;
 import net.gtaun.shoebill.data.Color;
@@ -181,7 +183,7 @@ public class PlayerManager
 				return;
 				
 			case "/menu":
-				Menu menu = sampObjectFactory.createMenu("test1", 1, 0, 0, 10, 10);
+				Menu menu = sampObjectFactory.createMenu("test1", 1, 0, 0, 100, 100);
 				menu.setColumnHeader(0, "test2");
 				menu.addItem(0, "hi");
 				menu.addItem(0, "hey");
@@ -208,9 +210,9 @@ public class PlayerManager
 					return;
 				}
 				
-				float x = Float.parseFloat(args.poll());
-				float y = Float.parseFloat(args.poll());
-				float z = Float.parseFloat(args.poll());
+				float x = NumberUtils.toFloat(args.poll());
+				float y = NumberUtils.toFloat(args.poll());
+				float z = NumberUtils.toFloat(args.poll());
 				player.setLocation(x, y, z);
 				event.setProcessed();
 				return;
@@ -223,7 +225,7 @@ public class PlayerManager
 					return;
 				}
 				
-				int worldId = Integer.parseInt(args.poll());
+				int worldId = NumberUtils.toInt(args.poll());
 				player.setWorld(worldId);
 				event.setProcessed();
 				return;
@@ -236,7 +238,7 @@ public class PlayerManager
 					return;
 				}
 				
-				int interior = Integer.parseInt(args.poll());
+				int interior = NumberUtils.toInt(args.poll());
 				player.setInterior(interior);
 				event.setProcessed();
 				return;
@@ -249,7 +251,7 @@ public class PlayerManager
 					return;
 				}
 
-				float angle = Float.parseFloat(args.poll());
+				float angle = NumberUtils.toFloat(args.poll());
 				player.setAngle(angle);
 				event.setProcessed();
 				return;
@@ -267,7 +269,7 @@ public class PlayerManager
 					return;
 				}
 				
-				int codepage = Integer.parseInt(args.poll());
+				int codepage = NumberUtils.toInt(args.poll());
 				player.setCodepage(codepage);
 				event.setProcessed();
 				return;
@@ -280,8 +282,8 @@ public class PlayerManager
 					return;
 				}
 				
-				int playerId = Integer.parseInt(args.poll());
-				int money = Integer.parseInt(args.poll());
+				int playerId = NumberUtils.toInt(args.poll());
+				int money = NumberUtils.toInt(args.poll());
 				
 				Player givePlayer = sampObjectStore.getPlayer(playerId);
 				if (givePlayer == null || givePlayer == player)

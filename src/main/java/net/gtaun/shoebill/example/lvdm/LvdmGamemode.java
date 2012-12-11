@@ -114,21 +114,28 @@ public class LvdmGamemode extends Gamemode
 
 				if (data.length() == 0 || data.charAt(0) == '/' || datas.length < 11) continue;
 				
-				int i = 0;
-				int modelId = Integer.parseInt(datas[i++].trim());
-				float x = Float.parseFloat(datas[i++].trim());
-				float y = Float.parseFloat(datas[i++].trim());
-				float z = Float.parseFloat(datas[i++].trim());
-				float angle = Float.parseFloat(datas[i++].trim());
-				int weapon1 = Integer.parseInt(datas[i++].trim());
-				int ammo1 = Integer.parseInt(datas[i++].trim());
-				int weapon2 = Integer.parseInt(datas[i++].trim());
-				int ammo2 = Integer.parseInt(datas[i++].trim());
-				int weapon3 = Integer.parseInt(datas[i++].trim());
-				int ammo3 = Integer.parseInt(datas[i++].trim());
-				world.addPlayerClass(modelId, x, y, z, angle, weapon1, ammo1, weapon2, ammo2, weapon3, ammo3);
-				
-				count++;
+				try
+				{
+					int i = 0;
+					int modelId = Integer.parseInt(datas[i++].trim());
+					float x = Float.parseFloat(datas[i++].trim());
+					float y = Float.parseFloat(datas[i++].trim());
+					float z = Float.parseFloat(datas[i++].trim());
+					float angle = Float.parseFloat(datas[i++].trim());
+					int weapon1 = Integer.parseInt(datas[i++].trim());
+					int ammo1 = Integer.parseInt(datas[i++].trim());
+					int weapon2 = Integer.parseInt(datas[i++].trim());
+					int ammo2 = Integer.parseInt(datas[i++].trim());
+					int weapon3 = Integer.parseInt(datas[i++].trim());
+					int ammo3 = Integer.parseInt(datas[i++].trim());
+					world.addPlayerClass(modelId, x, y, z, angle, weapon1, ammo1, weapon2, ammo2, weapon3, ammo3);
+					
+					count++;
+				}
+				catch (NumberFormatException e)
+				{
+					logger.info("Skip: " + data);
+				}
 			}
 			
 			logger.info("Created " + count + " classes.");
@@ -160,18 +167,25 @@ public class LvdmGamemode extends Gamemode
 					String[] datas = data.split("[, ]");
 					
 					if (data.length() == 0 || data.charAt(0) == '/' || datas.length < 7) continue;
-	
-					int i = 0;
-					int modelId = Integer.parseInt(datas[i++].trim());
-					float x = Float.parseFloat(datas[i++].trim());
-					float y = Float.parseFloat(datas[i++].trim());
-					float z = Float.parseFloat(datas[i++].trim());
-					float angle = Float.parseFloat(datas[i++].trim());
-					int color1 = Integer.parseInt(datas[i++].trim());
-					int color2 = Integer.parseInt(datas[i++].trim());
-					factory.createVehicle(modelId, x, y, z, angle, color1, color2, 0);
 					
-					count++;
+					try
+					{
+						int i = 0;
+						int modelId = Integer.parseInt(datas[i++].trim());
+						float x = Float.parseFloat(datas[i++].trim());
+						float y = Float.parseFloat(datas[i++].trim());
+						float z = Float.parseFloat(datas[i++].trim());
+						float angle = Float.parseFloat(datas[i++].trim());
+						int color1 = Integer.parseInt(datas[i++].trim());
+						int color2 = Integer.parseInt(datas[i++].trim());
+						factory.createVehicle(modelId, x, y, z, angle, color1, color2, 0);
+						
+						count++;
+					}
+					catch (NumberFormatException e)
+					{
+						logger.info("Skip: " + data);
+					}
 				}
 			}
 			catch (IOException e)
