@@ -11,15 +11,13 @@ import java.util.Collection;
 import net.gtaun.shoebill.SampObjectFactory;
 import net.gtaun.shoebill.SampObjectStore;
 import net.gtaun.shoebill.constant.PlayerMarkerMode;
-import net.gtaun.shoebill.event.TimerEventHandler;
-import net.gtaun.shoebill.event.timer.TimerTickEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Server;
 import net.gtaun.shoebill.object.Timer;
+import net.gtaun.shoebill.object.Timer.TimerCallback;
 import net.gtaun.shoebill.object.World;
 import net.gtaun.shoebill.resource.Gamemode;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.util.event.EventManager.HandlerPriority;
 
 import org.slf4j.Logger;
 
@@ -58,10 +56,10 @@ public class LvdmGamemode extends Gamemode
 		world.showNameTags(true);
 		world.enableStuntBonusForAll(false);
 		
-		TimerEventHandler timerEventHandler = new TimerEventHandler()
-		{
+		timer = factory.createTimer(5000, new TimerCallback()
+		{	
 			@Override
-			public void onTimerTick(TimerTickEvent event)
+			public void onTick(int factualInterval)
 			{
 				Collection<Player> players = store.getPlayers();
 				for (Player player : players)
@@ -69,12 +67,8 @@ public class LvdmGamemode extends Gamemode
 					player.setScore(player.getMoney());
 				}
 			}
-		};
-		
-		timer = factory.createTimer(5000);
+		});
 		timer.start();
-		
-		eventManager.registerHandler(TimerTickEvent.class, timer, timerEventHandler, HandlerPriority.NORMAL);	//Bind timer object for this EventHandler
 		
 		factory.createPickup(371, 15, 1710.3359f, 1614.3585f, 10.1191f, 0);
 		factory.createPickup(371, 15, 1964.4523f, 1917.0341f, 130.9375f, 0);
