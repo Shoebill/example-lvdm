@@ -6,10 +6,9 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
 
-import org.apache.commons.lang3.math.NumberUtils;
-
 import net.gtaun.shoebill.SampObjectFactory;
 import net.gtaun.shoebill.SampObjectStore;
+import net.gtaun.shoebill.data.Checkpoint;
 import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Location;
 import net.gtaun.shoebill.data.Vector3D;
@@ -23,12 +22,13 @@ import net.gtaun.shoebill.event.player.PlayerRequestClassEvent;
 import net.gtaun.shoebill.event.player.PlayerRequestSpawnEvent;
 import net.gtaun.shoebill.event.player.PlayerSpawnEvent;
 import net.gtaun.shoebill.event.player.PlayerUpdateEvent;
-import net.gtaun.shoebill.object.Checkpoint;
 import net.gtaun.shoebill.object.Menu;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManager.HandlerPriority;
 import net.gtaun.util.event.ManagedEventManager;
+
+import org.apache.commons.lang3.math.NumberUtils;
 
 public class PlayerManager
 {
@@ -194,7 +194,7 @@ public class PlayerManager
 			case "/cp":
 				location = player.getLocation();
 				location.setX(location.getX() + 10);
-				Checkpoint checkpoint = sampObjectFactory.createCheckpoint(location, 5);
+				Checkpoint checkpoint = new Checkpoint(location, 5);
 				Checkpoint usingCheckpoint = player.getCheckpoint();
 				if (usingCheckpoint != null) checkpoints.remove(usingCheckpoint);
 				checkpoints.add(checkpoint);
