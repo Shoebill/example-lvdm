@@ -107,6 +107,9 @@ public class PlayerManager
 	
 	private PlayerEventHandler playerEventHandler = new PlayerEventHandler()
 	{
+		private Random random = new Random();
+		
+		
 		public void onPlayerUpdate(PlayerUpdateEvent event)
 		{
 			//// getUpdateFrameCount() Example:
@@ -122,6 +125,10 @@ public class PlayerManager
 			Player player = event.getPlayer();
 			player.sendGameText(5000, 5, "~w~SA-MP: ~r~Las Venturas ~g~MoneyGrub");
 			player.sendMessage(Color.PURPLE, "Welcome to Las Venturas MoneyGrub, For help type /help.");
+			
+			Color color = new Color(random.nextInt() << 8 | 0xFF);
+			while (color.getY()<128) color = new Color(random.nextInt() << 8 | 0xFF);
+			player.setColor(color);
 		}
 		
 		public void onPlayerSpawn(PlayerSpawnEvent event)
