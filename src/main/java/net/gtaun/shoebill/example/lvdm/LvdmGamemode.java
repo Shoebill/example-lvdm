@@ -8,8 +8,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.Collection;
 
-import net.gtaun.shoebill.SampObjectFactory;
-import net.gtaun.shoebill.SampObjectStore;
+import net.gtaun.shoebill.SampObjectManager;
 import net.gtaun.shoebill.constant.PlayerMarkerMode;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Server;
@@ -44,24 +43,23 @@ public class LvdmGamemode extends Gamemode
 	{
 		logger = getLogger();
 		
-		final SampObjectStore store = getShoebill().getSampObjectStore();
-		final SampObjectFactory factory = getShoebill().getSampObjectFactory();
 		final EventManager eventManager = getEventManager();
+		final SampObjectManager objectManager = SampObjectManager.get();
 		
-		Server server = store.getServer();
-		World world = store.getWorld();
+		Server server = Server.get();
+		World world = World.get();
 		
 		server.setGamemodeText(getDescription().getName());
 		world.showPlayerMarkers(PlayerMarkerMode.GLOBAL);
 		world.showNameTags(true);
 		world.enableStuntBonusForAll(false);
 		
-		timer = factory.createTimer(5000, new TimerCallback()
+		timer = objectManager.createTimer(5000, new TimerCallback()
 		{	
 			@Override
 			public void onTick(int factualInterval)
 			{
-				Collection<Player> players = store.getPlayers();
+				Collection<Player> players = objectManager.getPlayers();
 				for (Player player : players)
 				{
 					player.setScore(player.getMoney());
@@ -70,19 +68,19 @@ public class LvdmGamemode extends Gamemode
 		});
 		timer.start();
 		
-		factory.createPickup(371, 15, 1710.3359f, 1614.3585f, 10.1191f, 0);
-		factory.createPickup(371, 15, 1964.4523f, 1917.0341f, 130.9375f, 0);
-		factory.createPickup(371, 15, 2055.7258f, 2395.8589f, 150.4766f, 0);
-		factory.createPickup(371, 15, 2265.0120f, 1672.3837f, 94.9219f, 0);
-		factory.createPickup(371, 15, 2265.9739f, 1623.4060f, 94.9219f, 0);
+		objectManager.createPickup(371, 15, 1710.3359f, 1614.3585f, 10.1191f, 0);
+		objectManager.createPickup(371, 15, 1964.4523f, 1917.0341f, 130.9375f, 0);
+		objectManager.createPickup(371, 15, 2055.7258f, 2395.8589f, 150.4766f, 0);
+		objectManager.createPickup(371, 15, 2265.0120f, 1672.3837f, 94.9219f, 0);
+		objectManager.createPickup(371, 15, 2265.9739f, 1623.4060f, 94.9219f, 0);
 		
-		playerManager = new PlayerManager(eventManager, factory, store);
+		playerManager = new PlayerManager(eventManager);
 		
 		File playerClassFile = new File(getDataDir(), "class.txt");
-		loadClass(world, playerClassFile);
+		loadPlayerClass(playerClassFile);
 		
 		File vehicleFilesDir = new File(getDataDir(), "vehicles/");
-		loadVehicle(factory, vehicleFilesDir);
+		loadVehicle(vehicleFilesDir);
 	}
 
 	@Override
@@ -92,7 +90,7 @@ public class LvdmGamemode extends Gamemode
 		playerManager = null;
 	}
 
-	private void loadClass(World world, File file)
+	private void loadPlayerClass(File file)
 	{
 		BufferedReader reader;
 		try
@@ -122,7 +120,7 @@ public class LvdmGamemode extends Gamemode
 					int ammo2 = Integer.parseInt(datas[i++].trim());
 					int weapon3 = Integer.parseInt(datas[i++].trim());
 					int ammo3 = Integer.parseInt(datas[i++].trim());
-					world.addPlayerClass(modelId, x, y, z, angle, weapon1, ammo1, weapon2, ammo2, weapon3, ammo3);
+					World.get().addPlayerClass(modelId, x, y, z, angle, weapon1, ammo1, weapon2, ammo2, weapon3, ammo3);
 					
 					count++;
 				}
@@ -141,7 +139,7 @@ public class LvdmGamemode extends Gamemode
 		}
 	}
 
-	private void loadVehicle(SampObjectFactory factory, File dir)
+	private void loadVehicle(File dir)
 	{
 		BufferedReader reader;
 
@@ -172,7 +170,7 @@ public class LvdmGamemode extends Gamemode
 						float angle = Float.parseFloat(datas[i++].trim());
 						int color1 = Integer.parseInt(datas[i++].trim());
 						int color2 = Integer.parseInt(datas[i++].trim());
-						factory.createVehicle(modelId, x, y, z, angle, color1, color2, 0);
+						SampObjectManager.get().createVehicle(modelId, x, y, z, angle, color1, color2, 0);
 						
 						count++;
 					}
