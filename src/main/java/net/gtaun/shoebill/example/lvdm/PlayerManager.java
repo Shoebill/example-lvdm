@@ -1,15 +1,12 @@
 package net.gtaun.shoebill.example.lvdm;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Random;
 
-import net.gtaun.shoebill.SampObjectManager;
+import net.gtaun.shoebill.common.command.PlayerCommandManager;
 import net.gtaun.shoebill.data.Checkpoint;
 import net.gtaun.shoebill.data.Color;
-import net.gtaun.shoebill.data.Location;
 import net.gtaun.shoebill.data.Vector3D;
 import net.gtaun.shoebill.event.checkpoint.CheckpointEnterEvent;
 import net.gtaun.shoebill.event.player.PlayerCommandEvent;
@@ -18,13 +15,10 @@ import net.gtaun.shoebill.event.player.PlayerDeathEvent;
 import net.gtaun.shoebill.event.player.PlayerRequestClassEvent;
 import net.gtaun.shoebill.event.player.PlayerSpawnEvent;
 import net.gtaun.shoebill.event.player.PlayerUpdateEvent;
-import net.gtaun.shoebill.object.Menu;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManagerNode;
 import net.gtaun.util.event.HandlerPriority;
-
-import org.apache.commons.lang3.math.NumberUtils;
 
 public class PlayerManager
 {
@@ -69,6 +63,8 @@ public class PlayerManager
 	
 	
 	private EventManagerNode eventManagerNode;
+	private PlayerCommandManager commandManager;
+	
 	private Collection<Checkpoint> checkpoints;
 	private Random random;
 	
@@ -79,6 +75,9 @@ public class PlayerManager
 		random = new Random();
 		
 		eventManagerNode = rootEventManager.createChildNode();
+		
+		commandManager = new PlayerCommandManager(eventManagerNode, HandlerPriority.NORMAL);
+		commandManager.registerCommands(new LvdmCommands());
 		
 		eventManagerNode.registerHandler(PlayerUpdateEvent.class, HandlerPriority.NORMAL, (PlayerUpdateEvent e) ->
 		{
@@ -129,186 +128,6 @@ public class PlayerManager
 			setupForClassSelection(player);
 		});
 		
-		eventManagerNode.registerHandler(PlayerCommandEvent.class, HandlerPriority.NORMAL, (PlayerCommandEvent e) ->
-		{
-			Player player = e.getPlayer();
-			
-			String command = e.getCommand();
-			String[] splits = command.split(" ", 2);
-			
-			String operation = splits[0].toLowerCase();
-			Queue<String> args = new LinkedList<>();
-			
-			if (splits.length > 1)
-			{
-				String[] argsArray = splits[1].split(" ");
-				args.addAll(Arrays.asList(argsArray));
-			}
-			
-			switch (operation)
-			{
-			case "/pickup":
-				Location location = player.getLocation();
-				location.setY(location.getY()+10);
-				SampObjectManager.get().createPickup(351, 15, location);
-				e.setProcessed();
-				return;
-				
-			case "/menu":
-				Menu menu = SampObjectManager.get().createMenu("test1", 1, 0, 0, 100, 100);
-				menu.setColumnHeader(0, "test2");
-				menu.addItem(0, "hi");
-				menu.addItem(0, "hey");
-				menu.show(player);
-				e.setProcessed();
-				return;
-				
-			case "/cp":
-				location = player.getLocation();
-				location.setX(location.getX() + 10);
-				Checkpoint checkpoint = new Checkpoint(location, 5);
-				Checkpoint usingCheckpoint = player.getCheckpoint();
-				if (usingCheckpoint != null) checkpoints.remove(usingCheckpoint);
-				checkpoints.add(checkpoint);
-				player.setCheckpoint(checkpoint);
-				e.setProcessed();
-				return;
-				
-			case "/tp":
-				if (args.size() < 3)
-				{
-					player.sendMessage(Color.WHITE, "Usage: /tp [x] [y] [z]");
-					e.setProcessed();
-					return;
-				}
-				
-				float x = NumberUtils.toFloat(args.poll());
-				float y = NumberUtils.toFloat(args.poll());
-				float z = NumberUtils.toFloat(args.poll());
-				player.setLocation(x, y, z);
-				e.setProcessed();
-				return;
-				
-			case "/world":
-				if (args.size() < 1)
-				{
-					player.sendMessage(Color.WHITE, "Usage: /world [id]");
-					e.setProcessed();
-					return;
-				}
-				
-				int worldId = NumberUtils.toInt(args.poll());
-				player.setWorld(worldId);
-				e.setProcessed();
-				return;
-				
-			case "/interior":
-				if (args.size() < 1)
-				{
-					player.sendMessage(Color.WHITE, "Usage: /interior [id]");
-					e.setProcessed();
-					return;
-				}
-				
-				int interior = NumberUtils.toInt(args.poll());
-				player.setInterior(interior);
-				e.setProcessed();
-				return;
-				
-			case "/angle":
-				if (args.size() < 1)
-				{
-					player.sendMessage(Color.WHITE, "Usage: /angle [val]");
-					e.setProcessed();
-					return;
-				}
-
-				float angle = NumberUtils.toFloat(args.poll());
-				player.setAngle(angle);
-				e.setProcessed();
-				return;
-				
-			case "/kill":
-				player.setHealth(0.0f);
-				e.setProcessed();
-				return;
-				
-			case "/codepage":
-				if (args.size() < 1)
-				{
-					player.sendMessage(Color.WHITE, "Usage: /codepage [val]");
-					e.setProcessed();
-					return;
-				}
-				
-				int codepage = NumberUtils.toInt(args.poll());
-				player.setCodepage(codepage);
-				e.setProcessed();
-				return;
-				
-			case "/givecash":
-				if (args.size() != 2)
-				{
-					player.sendMessage(Color.WHITE, "Usage: /givecash [playerid] [amount]");
-					e.setProcessed();
-					return;
-				}
-				
-				int playerId = NumberUtils.toInt(args.poll());
-				int money = NumberUtils.toInt(args.poll());
-				
-				Player givePlayer = SampObjectManager.get().getPlayer(playerId);
-				if (givePlayer == null || givePlayer == player)
-				{
-					player.sendMessage(Color.RED, "Invalid player id.");
-					e.setProcessed();
-					return;
-				}
-				
-				if (money <= 0 || money > player.getMoney())
-				{
-					player.sendMessage(Color.WHITE, "Invalid transaction amount.");
-					e.setProcessed();
-					return;
-				}
-				
-				player.giveMoney(-money);
-				givePlayer.giveMoney(money);
-				
-				player.sendMessage(Color.YELLOW, "You have sent " + givePlayer.getName() + "(" + givePlayer.getId() + "), $" + money);
-				givePlayer.sendMessage(Color.YELLOW, "You have recieved $" + money + " from " + player.getName() + "(" + player.getId() + ").");
-				
-				LvdmGamemode.logger().info("{}({}) has transfered {} to {}({})\n", player.getName(), player.getId(), money, givePlayer.getName(), givePlayer.getId());
-				e.setProcessed();
-				return;
-				
-			case "/objective":
-				player.sendMessage(Color.YELLOW, "This gamemode is faily open, there's no specific win / endgame conditions to meet.");
-				player.sendMessage(Color.YELLOW, "In LVDM:Money Grub, when you kill a player, you will receive whatever money they have.");
-				player.sendMessage(Color.YELLOW, "Consequently, if you have lots of money, and you die, your killer gets your cash.");
-				player.sendMessage(Color.YELLOW, "However, you're not forced to kill players for money, you can always gamble in the");
-				player.sendMessage(Color.YELLOW, "Casino's.");
-				e.setProcessed();
-				return;
-				
-			case "/tips":
-				player.sendMessage(Color.YELLOW, "Spawning with just a desert eagle might sound lame, however the idea of this");
-				player.sendMessage(Color.YELLOW, "gamemode is to get some cash, get better guns, then go after whoever has the");
-				player.sendMessage(Color.YELLOW, "most cash. Once you've got the most cash, the idea is to stay alive(with the");
-				player.sendMessage(Color.YELLOW, "cash intact)until the game ends, simple right?");
-				e.setProcessed();
-				return;
-				
-			case "/help":
-				player.sendMessage(Color.YELLOW, "Las Venturas Deathmatch: Money Grub Coded By Jax and the SA-MP Team.");
-				player.sendMessage(Color.YELLOW, "Type: /objective : to find out what to do in this gamemode.");
-				player.sendMessage(Color.YELLOW, "Type: /givecash [playerid] [money-amount] to send money to other players.");
-				player.sendMessage(Color.YELLOW, "Type: /tips : to see some tips from the creator of the gamemode.");
-				e.setProcessed();
-				return;
-			}
-		});
-		
 		eventManagerNode.registerHandler(CheckpointEnterEvent.class, HandlerPriority.NORMAL, (CheckpointEnterEvent e) ->
 		{
 			Player player = e.getPlayer();
@@ -332,6 +151,7 @@ public class PlayerManager
 	
 	public void uninitialize()
 	{
+		commandManager.destroy();
 		eventManagerNode.destroy();
 	}
 	
