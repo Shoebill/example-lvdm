@@ -15,7 +15,7 @@ public class LvdmCommands
 	}
 	
 	@Command
-	boolean pickup(Player p)
+	public boolean pickup(Player p)
 	{
 		Location location = p.getLocation();
 		location.y += 10;
@@ -24,7 +24,7 @@ public class LvdmCommands
 	}
 
 	@Command
-	boolean menu(Player p)
+	public boolean menu(Player p)
 	{
 		Menu menu = SampObjectManager.get().createMenu("test1", 1, 0, 0, 100, 100);
 		menu.setColumnHeader(0, "test2");
@@ -36,7 +36,7 @@ public class LvdmCommands
 	}
 
 	@Command
-	boolean checkpoint(Player p)
+	public boolean checkpoint(Player p)
 	{
 		Location location = p.getLocation();
 		location.setX(location.getX() + 10);
@@ -50,91 +50,91 @@ public class LvdmCommands
 	}
 
 	@Command
-	boolean tp(Player p)
+	public boolean tp(Player p)
 	{
 		p.sendMessage(Color.WHITE, "Usage: /tp [x] [y] [z]");
 		return true;
 	}
 
 	@Command
-	boolean tp(Player p, float x, float y, float z)
+	public boolean tp(Player p, float x, float y, float z)
 	{
 		p.setLocation(x, y, z);
 		return true;
 	}
 
 	@Command
-	boolean world(Player p)
+	public boolean world(Player p)
 	{
 		p.sendMessage(Color.WHITE, "Usage: /world [id]");
 		return true;
 	}
 
 	@Command
-	boolean world(Player p, int worldId)
+	public boolean world(Player p, int worldId)
 	{
 		p.setWorld(worldId);
 		return true;
 	}
 
 	@Command
-	boolean interior(Player p)
+	public boolean interior(Player p)
 	{
 		p.sendMessage(Color.WHITE, "Usage: /interior [id]");
 		return true;	
 	}
 
 	@Command
-	boolean interior(Player p, int interiorId)
+	public boolean interior(Player p, int interiorId)
 	{
 		p.setInterior(interiorId);
 		return true;
 	}
 
 	@Command
-	boolean angle(Player p)
+	public boolean angle(Player p)
 	{
 		p.sendMessage(Color.WHITE, "Usage: /angle [angle]");
 		return true;
 	}
 
 	@Command
-	boolean angle(Player p, float angle)
+	public boolean angle(Player p, float angle)
 	{
 		p.setAngle(angle);
 		return true;
 	}
 
 	@Command
-	boolean kill(Player p)
+	public boolean kill(Player p)
 	{
 		p.setHealth(0.0f);
 		return true;
 	}
 
 	@Command
-	boolean codepage(Player p)
+	public boolean codepage(Player p)
 	{
 		p.sendMessage(Color.WHITE, "Usage: /codepage [code]");
 		return true;
 	}
 
 	@Command
-	boolean codepage(Player p, int code)
+	public boolean codepage(Player p, int code)
 	{
 		p.setCodepage(code);
 		return true;
 	}
 
 	@Command
-	boolean givecash(Player p)
+	public boolean givecash(Player p)
 	{
 		p.sendMessage(Color.WHITE, "Usage: /givecash [playerid] [amount]");
 		return true;
 	}
 
 	@Command
-	boolean givecash(Player p, Player target, int amount)
+	public boolean givecash(Player p, Player target, int amount)
 	{
 		if (target == null || target == p)
 		{
@@ -159,7 +159,7 @@ public class LvdmCommands
 	}
 
 	@Command
-	boolean objective(Player p)
+	public boolean objective(Player p)
 	{
 		p.sendMessage(Color.YELLOW, "This gamemode is faily open, there's no specific win / endgame conditions to meet.");
 		p.sendMessage(Color.YELLOW, "In LVDM:Money Grub, when you kill a player, you will receive whatever money they have.");
@@ -171,7 +171,7 @@ public class LvdmCommands
 	}
 
 	@Command
-	boolean tips(Player p)
+	public boolean tips(Player p)
 	{
 		p.sendMessage(Color.YELLOW, "Spawning with just a desert eagle might sound lame, however the idea of this");
 		p.sendMessage(Color.YELLOW, "gamemode is to get some cash, get better guns, then go after whoever has the");
@@ -182,7 +182,7 @@ public class LvdmCommands
 	}
 
 	@Command
-	boolean help(Player p)
+	public boolean help(Player p)
 	{
 		p.sendMessage(Color.YELLOW, "Las Venturas Deathmatch: Money Grub Coded By Jax and the SA-MP Team.");
 		p.sendMessage(Color.YELLOW, "Type: /objective : to find out what to do in this gamemode.");
