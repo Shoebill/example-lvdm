@@ -1,24 +1,19 @@
 package net.gtaun.shoebill.example.lvdm;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Random;
-
 import net.gtaun.shoebill.common.command.PlayerCommandManager;
 import net.gtaun.shoebill.data.Checkpoint;
 import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Vector3D;
 import net.gtaun.shoebill.event.checkpoint.CheckpointEnterEvent;
-import net.gtaun.shoebill.event.player.PlayerCommandEvent;
-import net.gtaun.shoebill.event.player.PlayerConnectEvent;
-import net.gtaun.shoebill.event.player.PlayerDeathEvent;
-import net.gtaun.shoebill.event.player.PlayerRequestClassEvent;
-import net.gtaun.shoebill.event.player.PlayerSpawnEvent;
-import net.gtaun.shoebill.event.player.PlayerUpdateEvent;
+import net.gtaun.shoebill.event.player.*;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManagerNode;
 import net.gtaun.util.event.HandlerPriority;
+
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Random;
 
 public class PlayerManager
 {
@@ -88,7 +83,12 @@ public class PlayerManager
 				player.setScore(player.getMoney());
 			}
 		});
-		
+
+		eventManagerNode.registerHandler(PlayerWeaponShotEvent.class, (e) ->
+		{
+			e.getPlayer().sendMessage(Color.LIGHTBLUE, String.format("WeaponShot: hittype: %1$s, weapon: %2$s, pos: %3$s", e.getHitType(), e.getWeapon(), e.getPosition()));
+		});
+
 		eventManagerNode.registerHandler(PlayerConnectEvent.class, HandlerPriority.NORMAL, (PlayerConnectEvent e) ->
 		{
 			Player player = e.getPlayer();

@@ -6,12 +6,20 @@ import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Location;
 import net.gtaun.shoebill.object.Menu;
 import net.gtaun.shoebill.object.Player;
+import net.gtaun.shoebill.object.SampObject;
 
 public class LvdmCommands
-{	
+{
 	public LvdmCommands()
 	{
 		
+	}
+
+	@Command
+	public boolean drink(Player p)
+	{
+		p.setDrunkLevel(50000);
+		return true;	
 	}
 	
 	@Command
@@ -20,7 +28,7 @@ public class LvdmCommands
 		Location location = p.getLocation();
 		location.y += 10;
 		SampObjectManager.get().createPickup(351, 15, location);
-		return true;	
+		return true;
 	}
 
 	@Command
@@ -50,23 +58,9 @@ public class LvdmCommands
 	}
 
 	@Command
-	public boolean tp(Player p)
-	{
-		p.sendMessage(Color.WHITE, "Usage: /tp [x] [y] [z]");
-		return true;
-	}
-
-	@Command
 	public boolean tp(Player p, float x, float y, float z)
 	{
 		p.setLocation(x, y, z);
-		return true;
-	}
-
-	@Command
-	public boolean world(Player p)
-	{
-		p.sendMessage(Color.WHITE, "Usage: /world [id]");
 		return true;
 	}
 
@@ -78,23 +72,9 @@ public class LvdmCommands
 	}
 
 	@Command
-	public boolean interior(Player p)
-	{
-		p.sendMessage(Color.WHITE, "Usage: /interior [id]");
-		return true;	
-	}
-
-	@Command
 	public boolean interior(Player p, int interiorId)
 	{
 		p.setInterior(interiorId);
-		return true;
-	}
-
-	@Command
-	public boolean angle(Player p)
-	{
-		p.sendMessage(Color.WHITE, "Usage: /angle [angle]");
 		return true;
 	}
 
@@ -113,23 +93,9 @@ public class LvdmCommands
 	}
 
 	@Command
-	public boolean codepage(Player p)
-	{
-		p.sendMessage(Color.WHITE, "Usage: /codepage [code]");
-		return true;
-	}
-
-	@Command
 	public boolean codepage(Player p, int code)
 	{
 		p.setCodepage(code);
-		return true;
-	}
-
-	@Command
-	public boolean givecash(Player p)
-	{
-		p.sendMessage(Color.WHITE, "Usage: /givecash [playerid] [amount]");
 		return true;
 	}
 
