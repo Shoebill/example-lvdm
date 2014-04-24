@@ -53,7 +53,7 @@ public class LvdmGamemode extends Gamemode
 		world.showPlayerMarkers(PlayerMarkerMode.GLOBAL);
 		world.showNameTags(true);
 		world.enableStuntBonusForAll(false);
-		
+
 		timer = objectManager.createTimer(5000, new TimerCallback()
 		{	
 			@Override

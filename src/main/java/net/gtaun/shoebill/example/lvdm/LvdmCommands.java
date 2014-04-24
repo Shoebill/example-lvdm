@@ -6,7 +6,6 @@ import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Location;
 import net.gtaun.shoebill.object.Menu;
 import net.gtaun.shoebill.object.Player;
-import net.gtaun.shoebill.object.SampObject;
 
 public class LvdmCommands
 {
