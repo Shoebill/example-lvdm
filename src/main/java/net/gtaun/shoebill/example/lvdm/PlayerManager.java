@@ -71,7 +71,8 @@ public class PlayerManager
 		
 		eventManagerNode = rootEventManager.createChildNode();
 		
-		commandManager = new PlayerCommandManager(eventManagerNode, HandlerPriority.NORMAL);
+		commandManager = new PlayerCommandManager(eventManagerNode);
+		commandManager.installCommandHandler(HandlerPriority.NORMAL);
 		commandManager.registerCommands(new LvdmCommands());
 		
 		eventManagerNode.registerHandler(PlayerUpdateEvent.class, HandlerPriority.NORMAL, (PlayerUpdateEvent e) ->
