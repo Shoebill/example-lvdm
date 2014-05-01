@@ -80,7 +80,7 @@ public class LvdmGamemode extends Gamemode
 		loadPlayerClass(playerClassFile);
 		
 		File vehicleFilesDir = new File(getDataDir(), "vehicles/");
-		loadVehicle(vehicleFilesDir);
+		if (vehicleFilesDir.isDirectory()) loadVehicle(vehicleFilesDir);
 	}
 
 	@Override
