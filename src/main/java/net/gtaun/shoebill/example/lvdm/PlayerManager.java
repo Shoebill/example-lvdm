@@ -1,5 +1,6 @@
 package net.gtaun.shoebill.example.lvdm;
 
+import net.gtaun.shoebill.common.command.CommandGroup;
 import net.gtaun.shoebill.common.command.PlayerCommandManager;
 import net.gtaun.shoebill.data.Checkpoint;
 import net.gtaun.shoebill.data.Color;
@@ -72,8 +73,14 @@ public class PlayerManager
 		eventManagerNode = rootEventManager.createChildNode();
 		
 		commandManager = new PlayerCommandManager(eventManagerNode);
-		commandManager.installCommandHandler(HandlerPriority.NORMAL);
+		commandManager.installCommandHandler(HandlerPriority.NORMAL);		
 		commandManager.registerCommands(new LvdmCommands());
+		commandManager.registerCommands(new TestCommands());
+		
+		// Example: register /test [command] ...
+		CommandGroup group = new CommandGroup();
+		group.registerCommands(new TestCommands());
+		commandManager.registerChildGroup(group, "test");
 		
 		eventManagerNode.registerHandler(PlayerUpdateEvent.class, HandlerPriority.NORMAL, (PlayerUpdateEvent e) ->
 		{
