@@ -144,7 +144,7 @@ public class PlayerManager
 			if(checkpoints.contains(checkpoint))
 			{
 				player.disableCheckpoint();
-				player.playSound(1057, player.getLocation());
+				player.playSound(1057);
 				checkpoints.remove(checkpoint);
 			}
 		});
