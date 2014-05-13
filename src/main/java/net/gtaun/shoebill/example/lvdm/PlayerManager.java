@@ -73,19 +73,21 @@ public class PlayerManager
 		eventManagerNode = rootEventManager.createChildNode();
 		
 		commandManager = new PlayerCommandManager(eventManagerNode);
-		commandManager.installCommandHandler(HandlerPriority.NORMAL);		
+		commandManager.installCommandHandler(HandlerPriority.NORMAL);	
+		
 		commandManager.registerCommands(new LvdmCommands());
 		commandManager.registerCommands(new TestCommands());
 		
 		// Example: register /test [command] ...
-		CommandGroup group = new CommandGroup();
-		group.registerCommands(new TestCommands());
-		commandManager.registerChildGroup(group, "test");
+		CommandGroup testGroup = new CommandGroup();
+		testGroup.registerCommands(new TestCommands());
+		commandManager.registerChildGroup(testGroup, "test");
 		
-		eventManagerNode.registerHandler(PlayerUpdateEvent.class, HandlerPriority.NORMAL, (PlayerUpdateEvent e) ->
+		eventManagerNode.registerHandler(PlayerUpdateEvent.class, (e) ->
 		{
-			// getUpdateCount() Example:
 			Player player = e.getPlayer();
+			
+			// getUpdateCount() Example
 			if (player.getUpdateCount() % 100 == 0)
 			{
 				player.setScore(player.getMoney());
@@ -97,46 +99,43 @@ public class PlayerManager
 			e.getPlayer().sendMessage(Color.LIGHTBLUE, String.format("WeaponShot: hittype: %1$s, weapon: %2$s, pos: %3$s", e.getHitType(), e.getWeapon(), e.getPosition()));
 		});
 
-		eventManagerNode.registerHandler(PlayerConnectEvent.class, HandlerPriority.NORMAL, (PlayerConnectEvent e) ->
+		eventManagerNode.registerHandler(PlayerConnectEvent.class, (e) ->
 		{
 			Player player = e.getPlayer();
 			player.sendGameText(5000, 5, "~w~SA-MP: ~r~Las Venturas ~g~MoneyGrub");
 			player.sendMessage(Color.PURPLE, "Welcome to Las Venturas MoneyGrub, For help type /help.");
 			
-			Color color = new Color(random.nextInt() << 8 | 0xFF);
-			while (color.getY()<128) color = new Color(random.nextInt() << 8 | 0xFF);
+			Color color = new Color();
+			do color.setValue(random.nextInt()); while (color.getY() < 128);
 			player.setColor(color);
 		});
 		
-		eventManagerNode.registerHandler(PlayerSpawnEvent.class, HandlerPriority.NORMAL, (PlayerSpawnEvent e) ->
+		eventManagerNode.registerHandler(PlayerSpawnEvent.class, (e) ->
 		{
 			Player player = e.getPlayer();
 			player.giveMoney(INITIAL_MONEY);
 			player.toggleClock(true);
-			setRandomSpawn(player);
+			setRandomSpawnPos(player);
 		});
 		
-		eventManagerNode.registerHandler(PlayerDeathEvent.class, HandlerPriority.NORMAL, (PlayerDeathEvent e) ->
+		eventManagerNode.registerHandler(PlayerDeathEvent.class, (e) ->
 		{
 			Player player = e.getPlayer();
 			Player killer = e.getKiller();
 			
 			player.sendDeathMessage(killer, e.getReason());
-			if (killer != null)
-			{
-				killer.giveMoney(player.getMoney());
-			}
+			if (killer != null) killer.giveMoney(player.getMoney());
 			
 			player.setMoney(0);
 		});
 		
-		eventManagerNode.registerHandler(PlayerRequestClassEvent.class, HandlerPriority.NORMAL, (PlayerRequestClassEvent e) ->
+		eventManagerNode.registerHandler(PlayerRequestClassEvent.class, (e) ->
 		{
 			Player player = e.getPlayer();
 			setupForClassSelection(player);
 		});
 		
-		eventManagerNode.registerHandler(CheckpointEnterEvent.class, HandlerPriority.NORMAL, (CheckpointEnterEvent e) ->
+		eventManagerNode.registerHandler(CheckpointEnterEvent.class, (e) ->
 		{
 			Player player = e.getPlayer();
 			Checkpoint checkpoint = e.getCheckpoint();
@@ -149,7 +148,7 @@ public class PlayerManager
 			}
 		});
 		
-		eventManagerNode.registerHandler(PlayerCommandEvent.class, HandlerPriority.BOTTOM, (PlayerCommandEvent e) ->
+		eventManagerNode.registerHandler(PlayerCommandEvent.class, HandlerPriority.BOTTOM, (e) ->
 		{
 			Player player = e.getPlayer();
 			player.sendMessage(Color.RED, "Unknown command. Type /help to see help.");
@@ -163,7 +162,7 @@ public class PlayerManager
 		eventManagerNode.destroy();
 	}
 	
-	private void setRandomSpawn(Player player)
+	private void setRandomSpawnPos(Player player)
 	{
 		int rand = random.nextInt(RANDOM_SPAWNS.length);
 		player.setLocation(RANDOM_SPAWNS[rand]);

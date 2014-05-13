@@ -6,14 +6,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.util.Collection;
+import java.util.ArrayDeque;
+import java.util.Collections;
+import java.util.Queue;
 
-import net.gtaun.shoebill.SampObjectManager;
 import net.gtaun.shoebill.constant.PlayerMarkerMode;
+import net.gtaun.shoebill.object.Pickup;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Server;
 import net.gtaun.shoebill.object.Timer;
-import net.gtaun.shoebill.object.Timer.TimerCallback;
+import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.shoebill.object.World;
 import net.gtaun.shoebill.resource.Gamemode;
 import net.gtaun.util.event.EventManager;
@@ -43,8 +45,7 @@ public class LvdmGamemode extends Gamemode
 	{
 		logger = getLogger();
 		
-		final EventManager eventManager = getEventManager();
-		final SampObjectManager objectManager = SampObjectManager.get();
+		EventManager eventManager = getEventManager();
 		
 		Server server = Server.get();
 		World world = World.get();
@@ -54,25 +55,17 @@ public class LvdmGamemode extends Gamemode
 		world.showNameTags(true);
 		world.enableStuntBonusForAll(false);
 
-		timer = objectManager.createTimer(5000, new TimerCallback()
-		{	
-			@Override
-			public void onTick(int factualInterval)
-			{
-				Collection<Player> players = objectManager.getPlayers();
-				for (Player player : players)
-				{
-					player.setScore(player.getMoney());
-				}
-			}
+		timer = Timer.create(5000, (factualInterval) ->
+		{
+			for (Player player : Player.get()) player.setScore(player.getMoney());
 		});
 		timer.start();
 		
-		objectManager.createPickup(371, 15, 1710.3359f, 1614.3585f, 10.1191f, 0);
-		objectManager.createPickup(371, 15, 1964.4523f, 1917.0341f, 130.9375f, 0);
-		objectManager.createPickup(371, 15, 2055.7258f, 2395.8589f, 150.4766f, 0);
-		objectManager.createPickup(371, 15, 2265.0120f, 1672.3837f, 94.9219f, 0);
-		objectManager.createPickup(371, 15, 2265.9739f, 1623.4060f, 94.9219f, 0);
+		Pickup.create(371, 15, 1710.3359f, 1614.3585f, 10.1191f, 0);
+		Pickup.create(371, 15, 1964.4523f, 1917.0341f, 130.9375f, 0);
+		Pickup.create(371, 15, 2055.7258f, 2395.8589f, 150.4766f, 0);
+		Pickup.create(371, 15, 2265.0120f, 1672.3837f, 94.9219f, 0);
+		Pickup.create(371, 15, 2265.9739f, 1623.4060f, 94.9219f, 0);
 		
 		playerManager = new PlayerManager(eventManager);
 		
@@ -92,46 +85,45 @@ public class LvdmGamemode extends Gamemode
 
 	private void loadPlayerClass(File file)
 	{
-		BufferedReader reader;
-		try
+		logger.info("loading " + file);
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8"))))
 		{
-			logger.info("loading " + file);
-			reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")));
-			
 			int count = 0;
 			while (reader.ready())
 			{
-				String data = reader.readLine().trim();
-				String[] datas = data.split(",");
-
-				if (data.length() == 0 || data.charAt(0) == '/' || datas.length < 11) continue;
+				String line = reader.readLine();
+				if (line.startsWith("//")) continue;
+				
+				String[] paramArray = line.split("[, ]");
+				if (paramArray.length != 11) continue;
+				
+				Queue<String> params = new ArrayDeque<>();
+				Collections.addAll(params, paramArray);
 				
 				try
 				{
-					int i = 0;
-					int modelId = Integer.parseInt(datas[i++].trim());
-					float x = Float.parseFloat(datas[i++].trim());
-					float y = Float.parseFloat(datas[i++].trim());
-					float z = Float.parseFloat(datas[i++].trim());
-					float angle = Float.parseFloat(datas[i++].trim());
-					int weapon1 = Integer.parseInt(datas[i++].trim());
-					int ammo1 = Integer.parseInt(datas[i++].trim());
-					int weapon2 = Integer.parseInt(datas[i++].trim());
-					int ammo2 = Integer.parseInt(datas[i++].trim());
-					int weapon3 = Integer.parseInt(datas[i++].trim());
-					int ammo3 = Integer.parseInt(datas[i++].trim());
+					int modelId = Integer.parseInt(params.poll());
+					float x = Float.parseFloat(params.poll());
+					float y = Float.parseFloat(params.poll());
+					float z = Float.parseFloat(params.poll());
+					float angle = Float.parseFloat(params.poll());
+					int weapon1 = Integer.parseInt(params.poll());
+					int ammo1 = Integer.parseInt(params.poll());
+					int weapon2 = Integer.parseInt(params.poll());
+					int ammo2 = Integer.parseInt(params.poll());
+					int weapon3 = Integer.parseInt(params.poll());
+					int ammo3 = Integer.parseInt(params.poll());
 					World.get().addPlayerClass(modelId, x, y, z, angle, weapon1, ammo1, weapon2, ammo2, weapon3, ammo3);
 					
 					count++;
 				}
 				catch (NumberFormatException e)
 				{
-					logger.info("Skip: " + data);
+					logger.info("Skip: " + line);
 				}
 			}
 			
 			logger.info("Created " + count + " classes.");
-			reader.close();
 		}
 		catch (IOException e)
 		{
@@ -141,42 +133,41 @@ public class LvdmGamemode extends Gamemode
 
 	private void loadVehicle(File dir)
 	{
-		BufferedReader reader;
-
 		File files[] = dir.listFiles();
 			
 		int count = 0;
 		for (File file : files)
 		{
-			try
+			logger.info("loading " + file);
+			try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8"))))
 			{
-				reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")));
-				logger.info("loading " + file);
-					
 				while (reader.ready())
 				{
-					String data = reader.readLine().trim();
-					String[] datas = data.split("[, ]");
+					String line = reader.readLine();
+					if (line.startsWith("//")) continue;
 					
-					if (data.length() == 0 || data.charAt(0) == '/' || datas.length < 7) continue;
+					String[] paramArray = line.split("[, ]");
+					if (paramArray.length != 7) continue;
+					
+					Queue<String> params = new ArrayDeque<>();
+					Collections.addAll(params, paramArray);
 					
 					try
 					{
-						int i = 0;
-						int modelId = Integer.parseInt(datas[i++].trim());
-						float x = Float.parseFloat(datas[i++].trim());
-						float y = Float.parseFloat(datas[i++].trim());
-						float z = Float.parseFloat(datas[i++].trim());
-						float angle = Float.parseFloat(datas[i++].trim());
-						int color1 = Integer.parseInt(datas[i++].trim());
-						int color2 = Integer.parseInt(datas[i++].trim());
-						SampObjectManager.get().createVehicle(modelId, x, y, z, angle, color1, color2, 0);
+						int modelId = Integer.parseInt(params.poll());
+						float x = Float.parseFloat(params.poll());
+						float y = Float.parseFloat(params.poll());
+						float z = Float.parseFloat(params.poll());
+						float angle = Float.parseFloat(params.poll());
+						int color1 = Integer.parseInt(params.poll());
+						int color2 = Integer.parseInt(params.poll());
+						Vehicle.create(modelId, x, y, z, angle, color1, color2, 0);
 						
 						count++;
 					}
 					catch (NumberFormatException e)
 					{
-						logger.info("Skip: " + data);
+						logger.info("Skip: " + line);
 					}
 				}
 			}
