@@ -2,6 +2,7 @@ package net.gtaun.shoebill.example.lvdm;
 
 import net.gtaun.shoebill.common.command.CommandGroup;
 import net.gtaun.shoebill.common.command.PlayerCommandManager;
+import net.gtaun.shoebill.constant.WeaponModel;
 import net.gtaun.shoebill.data.Checkpoint;
 import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Vector3D;
@@ -19,7 +20,7 @@ import java.util.Random;
 public class PlayerManager
 {
 	private static final int INITIAL_MONEY = 50000;
-	private static final Vector3D[] RANDOM_SPAWNS = 
+	private static final Vector3D[] RANDOM_SPAWNS =
 	{
 		new Vector3D(1958.3783f, 1343.1572f, 15.3746f),
 		new Vector3D(2199.6531f, 1393.3678f, 10.8203f),
@@ -56,37 +57,37 @@ public class PlayerManager
 //		new Vector3D(2297.1064f, 2452.0115f, 10.8203f),
 //		new Vector3D(2297.0452f, 2468.6743f, 10.8203f)
 //	};
-	
-	
+
+
 	private EventManagerNode eventManagerNode;
 	private PlayerCommandManager commandManager;
-	
+
 	private Collection<Checkpoint> checkpoints;
 	private Random random;
-	
-	
+
+
 	public PlayerManager(EventManager rootEventManager)
 	{
 		checkpoints = new LinkedList<>();
 		random = new Random();
-		
+
 		eventManagerNode = rootEventManager.createChildNode();
-		
+
 		commandManager = new PlayerCommandManager(eventManagerNode);
-		commandManager.installCommandHandler(HandlerPriority.NORMAL);	
-		
+		commandManager.installCommandHandler(HandlerPriority.NORMAL);
+
 		commandManager.registerCommands(new LvdmCommands());
 		commandManager.registerCommands(new TestCommands());
-		
+
 		// Example: register /test [command] ...
 		CommandGroup testGroup = new CommandGroup();
 		testGroup.registerCommands(new TestCommands());
 		commandManager.registerChildGroup(testGroup, "test");
-		
+
 		eventManagerNode.registerHandler(PlayerUpdateEvent.class, (e) ->
 		{
 			Player player = e.getPlayer();
-			
+
 			// getUpdateCount() Example
 			if (player.getUpdateCount() % 100 == 0)
 			{
@@ -104,12 +105,20 @@ public class PlayerManager
 			Player player = e.getPlayer();
 			player.sendGameText(5000, 5, "~w~SA-MP: ~r~Las Venturas ~g~MoneyGrub");
 			player.sendMessage(Color.PURPLE, "Welcome to Las Venturas MoneyGrub, For help type /help.");
-			
+
+			Player.sendDeathMessageToAll(player, null, WeaponModel.CONNECT);
+
 			Color color = new Color();
 			do color.setValue(random.nextInt()); while (color.getY() < 128);
 			player.setColor(color);
 		});
-		
+
+		eventManagerNode.registerHandler(PlayerDisconnectEvent.class, (e) ->
+		{
+			Player player = e.getPlayer();
+			Player.sendDeathMessageToAll(player, null, WeaponModel.DISCONNECT);
+		});
+
 		eventManagerNode.registerHandler(PlayerSpawnEvent.class, (e) ->
 		{
 			Player player = e.getPlayer();
@@ -117,29 +126,29 @@ public class PlayerManager
 			player.toggleClock(true);
 			setRandomSpawnPos(player);
 		});
-		
+
 		eventManagerNode.registerHandler(PlayerDeathEvent.class, (e) ->
 		{
 			Player player = e.getPlayer();
 			Player killer = e.getKiller();
-			
-			player.sendDeathMessage(killer, e.getReason());
+
+			Player.sendDeathMessageToAll(killer, player, e.getReason());
 			if (killer != null) killer.giveMoney(player.getMoney());
-			
+
 			player.setMoney(0);
 		});
-		
+
 		eventManagerNode.registerHandler(PlayerRequestClassEvent.class, (e) ->
 		{
 			Player player = e.getPlayer();
 			setupForClassSelection(player);
 		});
-		
+
 		eventManagerNode.registerHandler(CheckpointEnterEvent.class, (e) ->
 		{
 			Player player = e.getPlayer();
 			Checkpoint checkpoint = e.getCheckpoint();
-			
+
 			if(checkpoints.contains(checkpoint))
 			{
 				player.disableCheckpoint();
@@ -147,7 +156,7 @@ public class PlayerManager
 				checkpoints.remove(checkpoint);
 			}
 		});
-		
+
 		eventManagerNode.registerHandler(PlayerCommandEvent.class, HandlerPriority.BOTTOM, (e) ->
 		{
 			Player player = e.getPlayer();
@@ -155,13 +164,13 @@ public class PlayerManager
 			e.setProcessed();
 		});
 	}
-	
+
 	public void uninitialize()
 	{
 		commandManager.destroy();
 		eventManagerNode.destroy();
 	}
-	
+
 	private void setRandomSpawnPos(Player player)
 	{
 		int rand = random.nextInt(RANDOM_SPAWNS.length);
