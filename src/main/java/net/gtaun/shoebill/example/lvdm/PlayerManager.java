@@ -1,21 +1,24 @@
 package net.gtaun.shoebill.example.lvdm;
 
+import java.util.Random;
+
 import net.gtaun.shoebill.common.command.CommandGroup;
 import net.gtaun.shoebill.common.command.PlayerCommandManager;
 import net.gtaun.shoebill.constant.WeaponModel;
-import net.gtaun.shoebill.data.Checkpoint;
 import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Vector3D;
-import net.gtaun.shoebill.event.checkpoint.CheckpointEnterEvent;
-import net.gtaun.shoebill.event.player.*;
+import net.gtaun.shoebill.event.player.PlayerCommandEvent;
+import net.gtaun.shoebill.event.player.PlayerConnectEvent;
+import net.gtaun.shoebill.event.player.PlayerDeathEvent;
+import net.gtaun.shoebill.event.player.PlayerDisconnectEvent;
+import net.gtaun.shoebill.event.player.PlayerRequestClassEvent;
+import net.gtaun.shoebill.event.player.PlayerSpawnEvent;
+import net.gtaun.shoebill.event.player.PlayerUpdateEvent;
+import net.gtaun.shoebill.event.player.PlayerWeaponShotEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManagerNode;
 import net.gtaun.util.event.HandlerPriority;
-
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Random;
 
 public class PlayerManager
 {
@@ -62,13 +65,11 @@ public class PlayerManager
 	private EventManagerNode eventManagerNode;
 	private PlayerCommandManager commandManager;
 
-	private Collection<Checkpoint> checkpoints;
 	private Random random;
 
 
 	public PlayerManager(EventManager rootEventManager)
 	{
-		checkpoints = new LinkedList<>();
 		random = new Random();
 
 		eventManagerNode = rootEventManager.createChildNode();
@@ -142,19 +143,6 @@ public class PlayerManager
 		{
 			Player player = e.getPlayer();
 			setupForClassSelection(player);
-		});
-
-		eventManagerNode.registerHandler(CheckpointEnterEvent.class, (e) ->
-		{
-			Player player = e.getPlayer();
-			Checkpoint checkpoint = e.getCheckpoint();
-
-			if(checkpoints.contains(checkpoint))
-			{
-				player.disableCheckpoint();
-				player.playSound(1057);
-				checkpoints.remove(checkpoint);
-			}
 		});
 
 		eventManagerNode.registerHandler(PlayerCommandEvent.class, HandlerPriority.BOTTOM, (e) ->

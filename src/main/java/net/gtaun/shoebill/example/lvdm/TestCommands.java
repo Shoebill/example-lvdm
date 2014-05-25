@@ -3,6 +3,8 @@ package net.gtaun.shoebill.example.lvdm;
 import net.gtaun.shoebill.SampObjectManager;
 import net.gtaun.shoebill.common.command.Command;
 import net.gtaun.shoebill.data.Location;
+import net.gtaun.shoebill.data.Radius;
+import net.gtaun.shoebill.object.Checkpoint;
 import net.gtaun.shoebill.object.Menu;
 import net.gtaun.shoebill.object.Player;
 
@@ -10,18 +12,16 @@ public class TestCommands
 {
 	public TestCommands()
 	{
-		
+
 	}
 
 	@Command
 	public boolean drink(Player p)
 	{
 		p.setDrunkLevel(50000);
-		return true;	
+		return true;
 	}
-	
-	// @CommandHelp public String Pickup(Player p)		{ return "pick a pickup"; }
-	
+
 	@Command
 	public boolean pickup(Player p)
 	{
@@ -39,21 +39,32 @@ public class TestCommands
 		menu.addItem(0, "hi");
 		menu.addItem(0, "hey");
 		menu.show(p);
-		
+
 		return true;
 	}
 
 	@Command
 	public boolean checkpoint(Player p)
 	{
-		Location location = p.getLocation();
-		location.setX(location.getX() + 10);
-		//Checkpoint checkpoint = new Checkpoint(location, 5);
-		//Checkpoint usingCheckpoint = p.getCheckpoint();
-		//if (usingCheckpoint != null) checkpoints.remove(usingCheckpoint);
-		//checkpoints.add(checkpoint);
-		//player.setCheckpoint(checkpoint);
-		
+		Radius location = new Radius(p.getLocation(), 10);
+		location.x += 10;
+
+		p.setCheckpoint(new Checkpoint()
+		{
+			@Override
+			public Radius getLocation()
+			{
+				return location;
+			}
+
+			@Override
+			public void onEnter(Player p)
+			{
+				p.disableCheckpoint();
+				p.playSound(1057);
+			}
+		});
+
 		return true;
 	}
 
