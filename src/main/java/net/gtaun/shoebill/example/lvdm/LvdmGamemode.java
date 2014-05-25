@@ -20,6 +20,7 @@ import net.gtaun.shoebill.object.World;
 import net.gtaun.shoebill.resource.Gamemode;
 import net.gtaun.util.event.EventManager;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 public class LvdmGamemode extends Gamemode
@@ -29,27 +30,27 @@ public class LvdmGamemode extends Gamemode
 	{
 		return logger;
 	}
-	
-	
+
+
 	private PlayerManager playerManager;
 	private Timer timer;
-	
-	
+
+
 	public LvdmGamemode()
 	{
-		
+
 	}
-	
+
 	@Override
 	protected void onEnable() throws Throwable
 	{
 		logger = getLogger();
-		
+
 		EventManager eventManager = getEventManager();
-		
+
 		Server server = Server.get();
 		World world = World.get();
-		
+
 		server.setGamemodeText(getDescription().getName());
 		world.showPlayerMarkers(PlayerMarkerMode.GLOBAL);
 		world.showNameTags(true);
@@ -60,18 +61,18 @@ public class LvdmGamemode extends Gamemode
 			for (Player player : Player.get()) player.setScore(player.getMoney());
 		});
 		timer.start();
-		
+
 		Pickup.create(371, 15, 1710.3359f, 1614.3585f, 10.1191f, 0);
 		Pickup.create(371, 15, 1964.4523f, 1917.0341f, 130.9375f, 0);
 		Pickup.create(371, 15, 2055.7258f, 2395.8589f, 150.4766f, 0);
 		Pickup.create(371, 15, 2265.0120f, 1672.3837f, 94.9219f, 0);
 		Pickup.create(371, 15, 2265.9739f, 1623.4060f, 94.9219f, 0);
-		
+
 		playerManager = new PlayerManager(eventManager);
-		
+
 		File playerClassFile = new File(getDataDir(), "class.txt");
 		loadPlayerClass(playerClassFile);
-		
+
 		File vehicleFilesDir = new File(getDataDir(), "vehicles/");
 		if (vehicleFilesDir.isDirectory()) loadVehicle(vehicleFilesDir);
 	}
@@ -91,15 +92,17 @@ public class LvdmGamemode extends Gamemode
 			int count = 0;
 			while (reader.ready())
 			{
-				String line = reader.readLine();
-				if (line.startsWith("//")) continue;
-				
+				String line = reader.readLine().trim();
+				if (StringUtils.isBlank(line)) continue;
+
+				line = StringUtils.split(line, ';')[0];
+
 				String[] paramArray = line.split("[, ]");
 				if (paramArray.length != 11) continue;
-				
+
 				Queue<String> params = new ArrayDeque<>();
 				Collections.addAll(params, paramArray);
-				
+
 				try
 				{
 					int modelId = Integer.parseInt(params.poll());
@@ -114,7 +117,7 @@ public class LvdmGamemode extends Gamemode
 					int weapon3 = Integer.parseInt(params.poll());
 					int ammo3 = Integer.parseInt(params.poll());
 					World.get().addPlayerClass(modelId, x, y, z, angle, weapon1, ammo1, weapon2, ammo2, weapon3, ammo3);
-					
+
 					count++;
 				}
 				catch (NumberFormatException e)
@@ -122,7 +125,7 @@ public class LvdmGamemode extends Gamemode
 					logger.info("Skip: " + line);
 				}
 			}
-			
+
 			logger.info("Created " + count + " classes.");
 		}
 		catch (IOException e)
@@ -134,7 +137,7 @@ public class LvdmGamemode extends Gamemode
 	private void loadVehicle(File dir)
 	{
 		File files[] = dir.listFiles();
-			
+
 		int count = 0;
 		for (File file : files)
 		{
@@ -144,14 +147,16 @@ public class LvdmGamemode extends Gamemode
 				while (reader.ready())
 				{
 					String line = reader.readLine();
-					if (line.startsWith("//")) continue;
-					
+					if (StringUtils.isBlank(line)) continue;
+
+					line = StringUtils.split(line, ';')[0];
+
 					String[] paramArray = line.split("[, ]");
 					if (paramArray.length != 7) continue;
-					
+
 					Queue<String> params = new ArrayDeque<>();
 					Collections.addAll(params, paramArray);
-					
+
 					try
 					{
 						int modelId = Integer.parseInt(params.poll());
@@ -162,7 +167,7 @@ public class LvdmGamemode extends Gamemode
 						int color1 = Integer.parseInt(params.poll());
 						int color2 = Integer.parseInt(params.poll());
 						Vehicle.create(modelId, x, y, z, angle, color1, color2, 0);
-						
+
 						count++;
 					}
 					catch (NumberFormatException e)
