@@ -1,6 +1,6 @@
 class: net.gtaun.shoebill.example.lvdm.LvdmGamemode
 name: Ventura's DM~MG (Shoebill Milestone2 Example)
-version: 0.1.0-SNAPSHOT
+version: 1.0-SNAPSHOT
 buildNumber: ${build.number}
 buildDate: Unknown
 authors: JoJLlmAn, MK124
