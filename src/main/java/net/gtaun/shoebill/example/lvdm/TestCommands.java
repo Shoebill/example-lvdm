@@ -1,7 +1,9 @@
 package net.gtaun.shoebill.example.lvdm;
 
 import net.gtaun.shoebill.SampObjectManager;
+import net.gtaun.shoebill.common.command.BeforeCheck;
 import net.gtaun.shoebill.common.command.Command;
+import net.gtaun.shoebill.common.command.CustomCommand;
 import net.gtaun.shoebill.data.Location;
 import net.gtaun.shoebill.data.Radius;
 import net.gtaun.shoebill.object.Checkpoint;
@@ -13,6 +15,19 @@ public class TestCommands
 	public TestCommands()
 	{
 
+	}
+	
+	@BeforeCheck
+	public boolean checkPremission(Player p, String cmd, String params)
+	{
+		return p.isAdmin();
+	}
+	
+	@CustomCommand
+	public boolean customHandler(Player p, String cmd, String params)
+	{
+		// If the command has been processed, return true
+		return false;
 	}
 
 	@Command
