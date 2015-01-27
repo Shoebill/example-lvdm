@@ -78,7 +78,6 @@ public class PlayerManager
 		commandManager.installCommandHandler(HandlerPriority.NORMAL);
 
 		commandManager.registerCommands(new LvdmCommands());
-		commandManager.registerCommands(new TestCommands());
 
 		// Example: register /test [command] ...
 		CommandGroup testGroup = new CommandGroup();
