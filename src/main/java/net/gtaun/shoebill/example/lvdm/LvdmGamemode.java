@@ -32,7 +32,7 @@ public class LvdmGamemode extends Gamemode
 	}
 
 
-	private PlayerManager playerManager;
+	private PlayerController playerController;
 	private Timer timer;
 
 
@@ -68,7 +68,7 @@ public class LvdmGamemode extends Gamemode
 		Pickup.create(371, 15, 2265.0120f, 1672.3837f, 94.9219f, 0);
 		Pickup.create(371, 15, 2265.9739f, 1623.4060f, 94.9219f, 0);
 
-		playerManager = new PlayerManager(eventManager);
+		playerController = new PlayerController(eventManager);
 
 		File playerClassFile = new File(getDataDir(), "class.txt");
 		loadPlayerClass(playerClassFile);
@@ -80,8 +80,8 @@ public class LvdmGamemode extends Gamemode
 	@Override
 	protected void onDisable() throws Throwable
 	{
-		playerManager.uninitialize();
-		playerManager = null;
+		playerController.uninitialize();
+		playerController = null;
 	}
 
 	private void loadPlayerClass(File file)
