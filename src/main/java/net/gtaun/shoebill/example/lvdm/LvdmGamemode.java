@@ -25,13 +25,6 @@ import org.slf4j.Logger;
 
 public class LvdmGamemode extends Gamemode
 {
-	private static Logger logger;
-	public static Logger logger()
-	{
-		return logger;
-	}
-
-
 	private PlayerController playerController;
 	private Timer timer;
 
@@ -44,8 +37,6 @@ public class LvdmGamemode extends Gamemode
 	@Override
 	protected void onEnable() throws Throwable
 	{
-		logger = getLogger();
-
 		EventManager eventManager = getEventManager();
 
 		Server server = Server.get();
@@ -86,7 +77,7 @@ public class LvdmGamemode extends Gamemode
 
 	private void loadPlayerClass(File file)
 	{
-		logger.info("loading " + file);
+		logger().info("loading " + file);
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8"))))
 		{
 			int count = 0;
@@ -122,15 +113,15 @@ public class LvdmGamemode extends Gamemode
 				}
 				catch (NumberFormatException e)
 				{
-					logger.info("Skip: " + line);
+					logger().info("Skip: " + line);
 				}
 			}
 
-			logger.info("Created " + count + " classes.");
+			logger().info("Created " + count + " classes.");
 		}
 		catch (IOException e)
 		{
-			logger.info("Can't initialize classes, please check your " + file);
+			logger().info("Can't initialize classes, please check your " + file);
 		}
 	}
 
@@ -141,7 +132,7 @@ public class LvdmGamemode extends Gamemode
 		int count = 0;
 		for (File file : files)
 		{
-			logger.info("loading " + file);
+			logger().info("loading " + file);
 			try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8"))))
 			{
 				while (reader.ready())
@@ -172,7 +163,7 @@ public class LvdmGamemode extends Gamemode
 					}
 					catch (NumberFormatException e)
 					{
-						logger.info("Skip: " + line);
+						logger().info("Skip: " + line);
 					}
 				}
 			}
