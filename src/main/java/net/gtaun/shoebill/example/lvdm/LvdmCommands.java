@@ -7,10 +7,6 @@ import net.gtaun.shoebill.object.Player;
 
 public class LvdmCommands
 {
-	public LvdmCommands()
-	{
-
-	}
 
 	@Command
 	@CommandHelp("Kill yourself")

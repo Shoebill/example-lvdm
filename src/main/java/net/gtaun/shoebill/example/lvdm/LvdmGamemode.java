@@ -23,156 +23,131 @@ import net.gtaun.util.event.EventManager;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
-public class LvdmGamemode extends Gamemode
-{
-	private PlayerController playerController;
-	private Timer timer;
+public class LvdmGamemode extends Gamemode {
 
+    private PlayerController playerController;
+    private Timer timer;
 
-	public LvdmGamemode()
-	{
+    @Override
+    protected void onEnable() throws Throwable {
+        EventManager eventManager = getEventManager();
 
-	}
+        Server server = Server.get();
+        World world = World.get();
 
-	@Override
-	protected void onEnable() throws Throwable
-	{
-		EventManager eventManager = getEventManager();
+        server.setGamemodeText(getDescription().getName());
+        world.showPlayerMarkers(PlayerMarkerMode.GLOBAL);
+        world.showNameTags(true);
+        world.enableStuntBonusForAll(false);
 
-		Server server = Server.get();
-		World world = World.get();
+        timer = Timer.create(5000, (factualInterval) ->
+        {
+            for (Player player : Player.get()) player.setScore(player.getMoney());
+        });
+        timer.start();
 
-		server.setGamemodeText(getDescription().getName());
-		world.showPlayerMarkers(PlayerMarkerMode.GLOBAL);
-		world.showNameTags(true);
-		world.enableStuntBonusForAll(false);
+        Pickup.create(371, 15, 1710.3359f, 1614.3585f, 10.1191f, 0);
+        Pickup.create(371, 15, 1964.4523f, 1917.0341f, 130.9375f, 0);
+        Pickup.create(371, 15, 2055.7258f, 2395.8589f, 150.4766f, 0);
+        Pickup.create(371, 15, 2265.0120f, 1672.3837f, 94.9219f, 0);
+        Pickup.create(371, 15, 2265.9739f, 1623.4060f, 94.9219f, 0);
 
-		timer = Timer.create(5000, (factualInterval) ->
-		{
-			for (Player player : Player.get()) player.setScore(player.getMoney());
-		});
-		timer.start();
+        playerController = new PlayerController(eventManager);
 
-		Pickup.create(371, 15, 1710.3359f, 1614.3585f, 10.1191f, 0);
-		Pickup.create(371, 15, 1964.4523f, 1917.0341f, 130.9375f, 0);
-		Pickup.create(371, 15, 2055.7258f, 2395.8589f, 150.4766f, 0);
-		Pickup.create(371, 15, 2265.0120f, 1672.3837f, 94.9219f, 0);
-		Pickup.create(371, 15, 2265.9739f, 1623.4060f, 94.9219f, 0);
+        File playerClassFile = new File(getDataDir(), "class.txt");
+        loadPlayerClass(playerClassFile);
 
-		playerController = new PlayerController(eventManager);
+        File vehicleFilesDir = new File(getDataDir(), "vehicles/");
+        if (vehicleFilesDir.isDirectory()) loadVehicle(vehicleFilesDir);
+    }
 
-		File playerClassFile = new File(getDataDir(), "class.txt");
-		loadPlayerClass(playerClassFile);
+    @Override
+    protected void onDisable() throws Throwable {
+        playerController.uninitialize();
+        playerController = null;
+    }
 
-		File vehicleFilesDir = new File(getDataDir(), "vehicles/");
-		if (vehicleFilesDir.isDirectory()) loadVehicle(vehicleFilesDir);
-	}
+    private void loadPlayerClass(File file) {
+        logger().info("loading " + file);
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")))) {
+            int count = 0;
+            while (reader.ready()) {
+                String line = reader.readLine().trim();
+                if (StringUtils.isBlank(line)) continue;
 
-	@Override
-	protected void onDisable() throws Throwable
-	{
-		playerController.uninitialize();
-		playerController = null;
-	}
+                line = StringUtils.split(line, ';')[0];
 
-	private void loadPlayerClass(File file)
-	{
-		logger().info("loading " + file);
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8"))))
-		{
-			int count = 0;
-			while (reader.ready())
-			{
-				String line = reader.readLine().trim();
-				if (StringUtils.isBlank(line)) continue;
+                String[] paramArray = line.split("[, ]");
+                if (paramArray.length != 11) continue;
 
-				line = StringUtils.split(line, ';')[0];
+                Queue<String> params = new ArrayDeque<>();
+                Collections.addAll(params, paramArray);
 
-				String[] paramArray = line.split("[, ]");
-				if (paramArray.length != 11) continue;
+                try {
+                    int modelId = Integer.parseInt(params.poll());
+                    float x = Float.parseFloat(params.poll());
+                    float y = Float.parseFloat(params.poll());
+                    float z = Float.parseFloat(params.poll());
+                    float angle = Float.parseFloat(params.poll());
+                    int weapon1 = Integer.parseInt(params.poll());
+                    int ammo1 = Integer.parseInt(params.poll());
+                    int weapon2 = Integer.parseInt(params.poll());
+                    int ammo2 = Integer.parseInt(params.poll());
+                    int weapon3 = Integer.parseInt(params.poll());
+                    int ammo3 = Integer.parseInt(params.poll());
+                    World.get().addPlayerClass(modelId, x, y, z, angle, weapon1, ammo1, weapon2, ammo2, weapon3, ammo3);
 
-				Queue<String> params = new ArrayDeque<>();
-				Collections.addAll(params, paramArray);
+                    count++;
+                } catch (NumberFormatException e) {
+                    logger().info("Skip: " + line);
+                }
+            }
 
-				try
-				{
-					int modelId = Integer.parseInt(params.poll());
-					float x = Float.parseFloat(params.poll());
-					float y = Float.parseFloat(params.poll());
-					float z = Float.parseFloat(params.poll());
-					float angle = Float.parseFloat(params.poll());
-					int weapon1 = Integer.parseInt(params.poll());
-					int ammo1 = Integer.parseInt(params.poll());
-					int weapon2 = Integer.parseInt(params.poll());
-					int ammo2 = Integer.parseInt(params.poll());
-					int weapon3 = Integer.parseInt(params.poll());
-					int ammo3 = Integer.parseInt(params.poll());
-					World.get().addPlayerClass(modelId, x, y, z, angle, weapon1, ammo1, weapon2, ammo2, weapon3, ammo3);
+            logger().info("Created " + count + " classes.");
+        } catch (IOException e) {
+            logger().info("Can't initialize classes, please check your " + file);
+        }
+    }
 
-					count++;
-				}
-				catch (NumberFormatException e)
-				{
-					logger().info("Skip: " + line);
-				}
-			}
+    private void loadVehicle(File dir) {
+        File files[] = dir.listFiles();
 
-			logger().info("Created " + count + " classes.");
-		}
-		catch (IOException e)
-		{
-			logger().info("Can't initialize classes, please check your " + file);
-		}
-	}
+        int count = 0;
+        for (File file : files) {
+            logger().info("loading " + file);
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")))) {
+                while (reader.ready()) {
+                    String line = reader.readLine();
+                    if (StringUtils.isBlank(line)) continue;
 
-	private void loadVehicle(File dir)
-	{
-		File files[] = dir.listFiles();
+                    line = StringUtils.split(line, ';')[0];
 
-		int count = 0;
-		for (File file : files)
-		{
-			logger().info("loading " + file);
-			try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8"))))
-			{
-				while (reader.ready())
-				{
-					String line = reader.readLine();
-					if (StringUtils.isBlank(line)) continue;
+                    String[] paramArray = line.split("[, ]");
+                    if (paramArray.length != 7) continue;
 
-					line = StringUtils.split(line, ';')[0];
+                    Queue<String> params = new ArrayDeque<>();
+                    Collections.addAll(params, paramArray);
 
-					String[] paramArray = line.split("[, ]");
-					if (paramArray.length != 7) continue;
+                    try {
+                        int modelId = Integer.parseInt(params.poll());
+                        float x = Float.parseFloat(params.poll());
+                        float y = Float.parseFloat(params.poll());
+                        float z = Float.parseFloat(params.poll());
+                        float angle = Float.parseFloat(params.poll());
+                        int color1 = Integer.parseInt(params.poll());
+                        int color2 = Integer.parseInt(params.poll());
+                        Vehicle.create(modelId, x, y, z, angle, color1, color2, 0);
 
-					Queue<String> params = new ArrayDeque<>();
-					Collections.addAll(params, paramArray);
+                        count++;
+                    } catch (NumberFormatException e) {
+                        logger().info("Skip: " + line);
+                    }
+                }
+            } catch (IOException e) {
+                System.out.println("Can't initialize vehicles, please check your " + file + " file.");
+            }
+        }
 
-					try
-					{
-						int modelId = Integer.parseInt(params.poll());
-						float x = Float.parseFloat(params.poll());
-						float y = Float.parseFloat(params.poll());
-						float z = Float.parseFloat(params.poll());
-						float angle = Float.parseFloat(params.poll());
-						int color1 = Integer.parseInt(params.poll());
-						int color2 = Integer.parseInt(params.poll());
-						Vehicle.create(modelId, x, y, z, angle, color1, color2, 0);
-
-						count++;
-					}
-					catch (NumberFormatException e)
-					{
-						logger().info("Skip: " + line);
-					}
-				}
-			}
-			catch (IOException e)
-			{
-				System.out.println("Can't initialize vehicles, please check your " + file + " file.");
-			}
-		}
-
-		System.out.println("Created " + count + " vehicles.");
-	}
+        System.out.println("Created " + count + " vehicles.");
+    }
 }

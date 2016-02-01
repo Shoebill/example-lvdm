@@ -12,11 +12,6 @@ import net.gtaun.shoebill.object.Player;
 
 public class TestCommands
 {
-	public TestCommands()
-	{
-
-	}
-	
 	@BeforeCheck
 	public boolean checkPremission(Player p, String cmd, String params)
 	{
