@@ -2,6 +2,7 @@ package net.gtaun.shoebill.example.lvdm;
 
 import net.gtaun.shoebill.common.command.Command;
 import net.gtaun.shoebill.common.command.CommandHelp;
+import net.gtaun.shoebill.common.command.CommandParameter;
 import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.object.Player;
 
@@ -17,8 +18,10 @@ public class LvdmCommands
 	}
 
 	@Command
-	@CommandHelp("Give someone some money")
-	public boolean givecash(Player p, Player target, int amount)
+	@CommandHelp(value = "Give someone some money")
+	public boolean givecash(Player p,
+							@CommandParameter(name = "Target player", description = "The player you want to give money") Player target,
+							@CommandParameter(name = "Amount", description = "The amount of money you want to give to your target") int amount)
 	{
 		if (target == null || target == p)
 		{
@@ -43,7 +46,7 @@ public class LvdmCommands
 	}
 
 	@Command
-	@CommandHelp("Show objective message")
+	@CommandHelp("Shosw the objective message")
 	public boolean objective(Player p)
 	{
 		p.sendMessage(Color.YELLOW, "This gamemode is faily open, there's no specific win / endgame conditions to meet.");
@@ -56,7 +59,7 @@ public class LvdmCommands
 	}
 
 	@Command
-	@CommandHelp("Show tips")
+	@CommandHelp("Show tips for gameplay")
 	public boolean tips(Player p)
 	{
 		p.sendMessage(Color.YELLOW, "Spawning with just a desert eagle might sound lame, however the idea of this");

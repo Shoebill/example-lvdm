@@ -55,16 +55,16 @@ public class LvdmGamemode extends Gamemode {
         playerController = new PlayerController(eventManager);
 
         File playerClassFile = new File(getDataDir(), "class.txt");
-        loadPlayerClass(playerClassFile);
+        loadPlayerClass(playerClassFile); //Load player classes from a file called class.txt that is located in the data directory.
 
         File vehicleFilesDir = new File(getDataDir(), "vehicles/");
+        //Load all vehicles from all files that are located in the vehicles directory in the data directory.
         if (vehicleFilesDir.isDirectory()) loadVehicle(vehicleFilesDir);
     }
 
     @Override
     protected void onDisable() throws Throwable {
-        playerController.uninitialize();
-        playerController = null;
+        playerController.destroy();
     }
 
     private void loadPlayerClass(File file) {

@@ -15,13 +15,14 @@ import net.gtaun.shoebill.event.player.PlayerRequestClassEvent;
 import net.gtaun.shoebill.event.player.PlayerSpawnEvent;
 import net.gtaun.shoebill.event.player.PlayerUpdateEvent;
 import net.gtaun.shoebill.event.player.PlayerWeaponShotEvent;
+import net.gtaun.shoebill.object.Destroyable;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManagerNode;
 import net.gtaun.util.event.HandlerPriority;
 
-public class PlayerController
-{
+public class PlayerController implements Destroyable {
+
 	private static final int INITIAL_MONEY = 50000;
 	private static final Vector3D[] RANDOM_SPAWNS =
 	{
@@ -55,12 +56,6 @@ public class PlayerController
 		new Vector3D(1705.2347f, 1025.6808f, 10.8203f)
 	};
 
-//	private static final Vector3D[] COP_SPAWNS =
-//	{
-//		new Vector3D(2297.1064f, 2452.0115f, 10.8203f),
-//		new Vector3D(2297.0452f, 2468.6743f, 10.8203f)
-//	};
-
 
 	private EventManagerNode eventManagerNode;
 	private PlayerCommandManager commandManager;
@@ -71,19 +66,13 @@ public class PlayerController
 	public PlayerController(EventManager rootEventManager)
 	{
 		random = new Random();
-
 		eventManagerNode = rootEventManager.createChildNode();
 
-		commandManager = new PlayerCommandManager(eventManagerNode);
-		commandManager.installCommandHandler(HandlerPriority.NORMAL);
+		setupCommandManager();
+		setupEventHandlers();
+	}
 
-		commandManager.registerCommands(new LvdmCommands());
-
-		// Example: register /test [command] ...
-		CommandGroup testGroup = new CommandGroup();
-		testGroup.registerCommands(new TestCommands());
-		commandManager.registerChildGroup(testGroup, "test");
-
+	private void setupEventHandlers() {
 		eventManagerNode.registerHandler(PlayerUpdateEvent.class, (e) ->
 		{
 			Player player = e.getPlayer();
@@ -152,10 +141,16 @@ public class PlayerController
 		});
 	}
 
-	public void uninitialize()
-	{
-		commandManager.destroy();
-		eventManagerNode.destroy();
+	private void setupCommandManager() {
+		commandManager = new PlayerCommandManager(eventManagerNode);
+		commandManager.installCommandHandler(HandlerPriority.NORMAL);
+
+		commandManager.registerCommands(new LvdmCommands());
+
+		// Example: register /test [command] ...
+		CommandGroup testGroup = new CommandGroup();
+		testGroup.registerCommands(new TestCommands());
+		commandManager.registerChildGroup(testGroup, "test");
 	}
 
 	private void setRandomSpawnPos(Player player)
@@ -172,5 +167,18 @@ public class PlayerController
 		player.setAngle(270.0f);
 		player.setCameraPosition(256.0815f, -43.0475f, 1004.0234f);
 		player.setCameraLookAt(258.4893f, -41.4008f, 1002.0234f);
+	}
+
+	@Override
+	public void destroy() {
+		if(isDestroyed()) return;
+
+		commandManager.destroy();
+		eventManagerNode.destroy();
+	}
+
+	@Override
+	public boolean isDestroyed() {
+		return commandManager.isDestroyed() || eventManagerNode.isDestroy();
 	}
 }
